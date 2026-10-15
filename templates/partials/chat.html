@@ -1,0 +1,58 @@
+{% load static %}
+<div id="rs-chat" class="no-print">
+  <button type="button" data-rs-chat-open class="fixed bottom-6 right-6 z-50 h-12 pl-4 pr-5 rounded-full bg-primary-container text-on-primary shadow-lg flex items-center gap-2 hover:bg-primary transition-colors" aria-label="ถามผู้ช่วย">
+    <span class="material-symbols-outlined text-amber-signal">chat</span><span class="font-label-md text-label-md">ถามผู้ช่วย</span>
+  </button>
+  <aside id="rs-chat-box" class="hidden fixed bottom-6 right-6 z-[60] w-[360px] max-w-[calc(100vw-2rem)] h-[520px] max-h-[calc(100vh-6rem)] rounded-2xl bg-surface border border-line shadow-[0_16px_36px_-6px_rgba(20,32,46,0.22),0_4px_16px_-2px_rgba(20,32,46,0.12)] flex-col overflow-hidden">
+    <div class="h-16 px-4 bg-primary-container flex items-center justify-between shrink-0 shadow-sm">
+      <div class="flex items-center gap-3">
+        <div class="relative w-10 h-10 rounded-full bg-white/10 flex items-center justify-center">
+          <span class="material-symbols-outlined text-amber-signal" style="font-size:22px">smart_toy</span>
+          <span class="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-success ring-2 ring-primary-container"></span>
+        </div>
+        <div class="flex flex-col">
+          <span class="text-body-lg font-headline-sm text-on-primary leading-none">ผู้ช่วย RailSpeed</span>
+          <span class="text-caption text-primary-fixed-dim leading-tight mt-1">ถามวิธีจอง ปัญหาเบื้องต้น หรือที่เที่ยวปลายทาง</span>
+        </div>
+      </div>
+      <button aria-label="ปิดหน้าต่างแชท" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-on-primary flex items-center justify-center" data-rs-chat-close type="button">✕</button>
+    </div>
+    <div id="rs-chat-log" class="flex-1 p-4 overflow-y-auto bg-surface-bright flex flex-col gap-3.5">
+      <div class="flex items-start gap-2 max-w-[90%]">
+        <div class="w-7 h-7 rounded-full bg-primary-container shrink-0 flex items-center justify-center mt-1"><span class="material-symbols-outlined text-amber-signal" style="font-size:16px">smart_toy</span></div>
+        <div class="p-3 rounded-2xl rounded-tl-sm bg-surface border border-line text-ink"><p class="text-body-md leading-relaxed">สวัสดีครับ ผมช่วยตอบเรื่องวิธีจองตั๋ว ปัญหาการใช้งานเบื้องต้น และแนะนำสถานที่ท่องเที่ยวปลายทางได้ครับ</p></div>
+      </div>
+    </div>
+    <div class="p-3 bg-surface border-t border-line flex flex-col gap-2">
+      <div id="rs-chat-suggest" class="flex gap-1.5 overflow-x-auto pb-1 -mx-1 px-1" style="scrollbar-width:thin">
+        {% if user.is_authenticated %}
+        <button type="button" data-rs-ask="การจองของฉันยืนยันหรือยัง" class="shrink-0 px-3 py-1.5 rounded-full border border-line bg-surface-container-low hover:bg-secondary/10 hover:border-secondary/40 text-caption text-ink whitespace-nowrap transition-colors">การจองของฉันยืนยันหรือยัง</button>
+        <button type="button" data-rs-ask="จองตั๋วยังไง" class="shrink-0 px-3 py-1.5 rounded-full border border-line bg-surface-container-low hover:bg-secondary/10 hover:border-secondary/40 text-caption text-ink whitespace-nowrap transition-colors">จองตั๋วยังไง</button>
+        <button type="button" data-rs-ask="พรุ่งนี้ไปเชียงใหม่มีรอบไหนบ้าง" class="shrink-0 px-3 py-1.5 rounded-full border border-line bg-surface-container-low hover:bg-secondary/10 hover:border-secondary/40 text-caption text-ink whitespace-nowrap transition-colors">พรุ่งนี้ไปเชียงใหม่มีรอบไหนบ้าง</button>
+        <button type="button" data-rs-ask="ตู้นอนชั้น 1 กับชั้น 2 ต่างกันยังไง" class="shrink-0 px-3 py-1.5 rounded-full border border-line bg-surface-container-low hover:bg-secondary/10 hover:border-secondary/40 text-caption text-ink whitespace-nowrap transition-colors">ตู้นอนชั้น 1 กับชั้น 2 ต่างกันยังไง</button>
+        <button type="button" data-rs-ask="ชำระเงินยังไง" class="shrink-0 px-3 py-1.5 rounded-full border border-line bg-surface-container-low hover:bg-secondary/10 hover:border-secondary/40 text-caption text-ink whitespace-nowrap transition-colors">ชำระเงินยังไง</button>
+        <button type="button" data-rs-ask="ยกเลิกการจองยังไง" class="shrink-0 px-3 py-1.5 rounded-full border border-line bg-surface-container-low hover:bg-secondary/10 hover:border-secondary/40 text-caption text-ink whitespace-nowrap transition-colors">ยกเลิกการจองยังไง</button>
+        <button type="button" data-rs-ask="ที่เที่ยวใกล้สถานีเชียงใหม่" class="shrink-0 px-3 py-1.5 rounded-full border border-line bg-surface-container-low hover:bg-secondary/10 hover:border-secondary/40 text-caption text-ink whitespace-nowrap transition-colors">ที่เที่ยวใกล้สถานีเชียงใหม่</button>
+        {% else %}
+        <button type="button" data-rs-ask="จองตั๋วยังไง" class="shrink-0 px-3 py-1.5 rounded-full border border-line bg-surface-container-low hover:bg-secondary/10 hover:border-secondary/40 text-caption text-ink whitespace-nowrap transition-colors">จองตั๋วยังไง</button>
+        <button type="button" data-rs-ask="ต้องสมัครสมาชิกก่อนไหม" class="shrink-0 px-3 py-1.5 rounded-full border border-line bg-surface-container-low hover:bg-secondary/10 hover:border-secondary/40 text-caption text-ink whitespace-nowrap transition-colors">ต้องสมัครสมาชิกก่อนไหม</button>
+        <button type="button" data-rs-ask="พรุ่งนี้ไปเชียงใหม่มีรอบไหนบ้าง" class="shrink-0 px-3 py-1.5 rounded-full border border-line bg-surface-container-low hover:bg-secondary/10 hover:border-secondary/40 text-caption text-ink whitespace-nowrap transition-colors">พรุ่งนี้ไปเชียงใหม่มีรอบไหนบ้าง</button>
+        <button type="button" data-rs-ask="ตู้นอนชั้น 1 กับชั้น 2 ต่างกันยังไง" class="shrink-0 px-3 py-1.5 rounded-full border border-line bg-surface-container-low hover:bg-secondary/10 hover:border-secondary/40 text-caption text-ink whitespace-nowrap transition-colors">ตู้นอนชั้น 1 กับชั้น 2 ต่างกันยังไง</button>
+        <button type="button" data-rs-ask="ชำระเงินยังไง" class="shrink-0 px-3 py-1.5 rounded-full border border-line bg-surface-container-low hover:bg-secondary/10 hover:border-secondary/40 text-caption text-ink whitespace-nowrap transition-colors">ชำระเงินยังไง</button>
+        <button type="button" data-rs-ask="ที่เที่ยวใกล้สถานีเชียงใหม่" class="shrink-0 px-3 py-1.5 rounded-full border border-line bg-surface-container-low hover:bg-secondary/10 hover:border-secondary/40 text-caption text-ink whitespace-nowrap transition-colors">ที่เที่ยวใกล้สถานีเชียงใหม่</button>
+        {% endif %}
+      </div>
+      <form class="flex items-center gap-2" id="rs-chat-form" data-url="{% url 'api_chat' %}" data-owner="{% if user.is_authenticated %}u{{ user.id }}{% else %}guest{% endif %}">
+        {% csrf_token %}
+        <input id="rs-chat-input" maxlength="500" autocomplete="off" class="flex-1 h-[44px] px-3.5 rounded-lg bg-surface-container-low text-ink text-body-md placeholder:text-slate focus:bg-surface focus:outline-none border border-transparent focus:border-line" placeholder="พิมพ์คำถามของคุณ..." type="text">
+        <button class="h-[44px] px-4 rounded-lg bg-primary-container hover:bg-primary text-on-primary font-label-md text-label-md flex items-center gap-1.5 shrink-0 disabled:opacity-60" type="submit">
+          <span>ส่ง</span><span class="material-symbols-outlined" style="font-size:18px">send</span>
+        </button>
+      </form>
+      <div class="text-center pb-1">
+        <span class="text-caption text-slate">ปัญหาที่ต้องให้แอดมินแก้ไข? </span>
+        <a class="text-caption font-label-sm text-coach-seat-first underline underline-offset-2" href="{% url 'contact' %}">ส่งข้อความถึงแอดมิน</a>
+      </div>
+    </div>
+  </aside>
+</div>

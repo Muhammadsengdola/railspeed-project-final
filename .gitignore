@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+.venv/
+venv/
+staticfiles/
+.env
+/db.sqlite3
+/db_seeded.flag
+/media/slips/*
+!/media/slips/seed_*.svg

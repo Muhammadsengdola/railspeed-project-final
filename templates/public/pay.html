@@ -1,0 +1,95 @@
+{% extends "base.html" %}{% load rs %}
+{% block title %}ชำระเงิน {{ booking.code }}{% endblock %}
+{% block content %}
+<div class="max-w-[1200px] w-full mx-auto px-margin py-space-lg flex flex-col gap-space-lg">
+  {% include "partials/steps.html" with step=4 %}
+  <div class="flex flex-col gap-space-xs -mt-space-md">
+    <h1 class="font-headline-lg text-headline-lg text-ink font-bold">ชำระเงิน</h1>
+    <p class="text-slate">กรุณาสแกน QR Code เพื่อชำระเงิน แล้วอัปโหลดสลิปโอนเงินเพื่อยืนยันการจอง</p>
+  </div>
+  <form method="post" enctype="multipart/form-data" class="grid grid-cols-1 lg:grid-cols-12 gap-space-lg items-start">
+    {% csrf_token %}
+    <div class="lg:col-span-7 flex flex-col gap-space-lg">
+      <div class="bg-surface rounded-xl border border-line shadow-sm overflow-hidden">
+        <div class="bg-primary-container text-on-primary px-space-lg py-space-md flex items-center justify-between gap-space-sm">
+          <div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-amber-signal">payments</span>
+            <div><p class="font-headline-sm text-headline-sm">ชำระเงินด้วย พร้อมเพย์ (PromptPay)</p><p class="text-caption text-primary-fixed-dim">รองรับแอปธนาคารทุกธนาคาร</p></div></div>
+          <span class="hidden sm:flex items-center gap-1 px-3 py-1 rounded-full bg-white/10 text-label-sm"><span class="material-symbols-outlined text-[16px] text-amber-signal">timer</span>รักษาที่นั่งไว้ {{ HOLD_MINUTES }} นาที</span>
+        </div>
+        <div class="p-space-lg flex flex-col md:flex-row gap-space-lg items-center">
+          <div class="flex flex-col items-center gap-space-sm">
+            <div class="p-3 rounded-xl bg-white border border-line shadow-sm"><div id="pp-qr" class="w-[200px] h-[200px]"></div></div>
+            <span class="text-[11px] tracking-widest font-bold text-slate">PROMPTPAY QR</span>
+          </div>
+          <div class="flex-1 flex flex-col gap-space-sm w-full">
+            <div class="p-space-md rounded-xl bg-surface-container-low">
+              <p class="text-caption text-slate">ยอดที่ต้องชำระ</p>
+              {% if pay_divisor > 1 %}
+              <p class="font-headline-lg text-headline-lg text-amber-signal font-bold leading-tight">฿{{ qr_amount|floatformat:2 }}</p>
+              <p class="mt-1 inline-flex items-center gap-1 px-2 py-0.5 rounded bg-warning-bg border border-amber-signal/40 text-ink text-caption">
+                <span class="material-symbols-outlined text-[16px] text-amber-signal">science</span>โหมดสาธิต: ราคาตั๋ว {{ booking.total|baht }} ÷ {{ pay_divisor }}</p>
+              {% else %}
+              <p class="font-headline-lg text-headline-lg text-amber-signal font-bold leading-tight">{{ booking.total|baht }}</p>
+              {% endif %}
+              <p class="text-caption text-slate mt-1">{{ promptpay_name }} · พร้อมเพย์ {{ promptpay_id }}</p>
+            </div>
+            <ol class="flex flex-col gap-2 text-body-md">
+              <li class="flex gap-2"><span class="w-6 h-6 rounded-full bg-primary-container text-on-primary text-[12px] flex items-center justify-center shrink-0">1</span><span><b>สแกนจ่าย</b> เปิดแอปธนาคารแล้วสแกน QR Code</span></li>
+              <li class="flex gap-2"><span class="w-6 h-6 rounded-full bg-primary-container text-on-primary text-[12px] flex items-center justify-center shrink-0">2</span><span><b>แคปสลิป</b> บันทึกภาพสลิปหลังโอนสำเร็จ</span></li>
+              <li class="flex gap-2"><span class="w-6 h-6 rounded-full bg-primary-container text-on-primary text-[12px] flex items-center justify-center shrink-0">3</span><span><b>อัปโหลดสลิป</b> แนบไฟล์ด้านล่างแล้วกดส่งหลักฐาน</span></li>
+            </ol>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-surface rounded-xl border border-line shadow-sm p-space-lg flex flex-col gap-space-md">
+        <div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-secondary">cloud_upload</span><h2 class="font-headline-sm text-headline-sm text-ink">อัปโหลดสลิป</h2></div>
+        <label for="slip" id="drop" class="flex flex-col items-center justify-center gap-space-xs p-space-xl rounded-xl border-2 border-dashed border-line bg-surface-container-low hover:border-secondary cursor-pointer text-center transition-colors">
+          <span class="material-symbols-outlined text-[40px] text-secondary">upload_file</span>
+          <span class="font-label-md text-label-md text-ink">ลากไฟล์มาวางที่นี่ หรือ <u>คลิกเพื่อเลือกไฟล์</u></span>
+          <span class="text-caption text-slate">รองรับ JPG, PNG, WEBP, PDF ขนาดไม่เกิน 5MB</span>
+          <input id="slip" name="slip" type="file" accept=".jpg,.jpeg,.png,.webp,.pdf,image/*,application/pdf" class="sr-only" required>
+        </label>
+        <div id="slip-file" class="hidden items-center gap-space-sm p-space-sm rounded-lg bg-success/10 border border-success/30">
+          <span class="material-symbols-outlined text-success">receipt_long</span><span class="flex-1 font-label-md text-ink truncate" id="slip-name"></span>
+          <span class="text-success text-label-sm flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">check_circle</span>แนบแล้ว</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="lg:col-span-5 lg:sticky lg:top-24 flex flex-col gap-space-md">
+      <div class="bg-surface rounded-xl shadow-md border border-line p-space-lg flex flex-col gap-space-md">
+        {% include "partials/booking_summary.html" %}
+        <button class="w-full h-12 rounded-lg bg-primary-container hover:bg-primary text-on-primary font-label-md text-label-md font-bold shadow-md flex items-center justify-center gap-space-xs" type="submit">
+          ส่งหลักฐานการชำระเงิน<span class="material-symbols-outlined text-[18px]">arrow_forward</span></button>
+        <a class="w-full h-11 rounded-lg bg-surface border border-line text-ink hover:bg-mist font-label-md text-label-md flex items-center justify-center gap-space-xs" href="{% url 'passengers' booking.id %}">
+          <span class="material-symbols-outlined text-[18px]">arrow_back</span>แก้ไขข้อมูลผู้โดยสาร</a>
+      </div>
+    </div>
+  </form>
+  <form method="post" action="{% url 'cancel_booking' booking.id %}" class="text-center -mt-space-sm">
+    {% csrf_token %}<input type="hidden" name="next" value="{% url 'home' %}">
+    <button class="text-danger font-label-md text-label-md hover:underline" type="submit" data-confirm="ยกเลิกการจองนี้และคืนที่นั่งใช่ไหม?">ยกเลิกการจอง</button>
+  </form>
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+{% include "partials/countdown.html" %}
+<script>
+(function () {
+  try { new QRCode(document.getElementById('pp-qr'), { text: "{{ qr_payload }}", width: 200, height: 200, correctLevel: QRCode.CorrectLevel.M }); }
+  catch (e) { document.getElementById('pp-qr').textContent = 'โหลด QR ไม่สำเร็จ'; }
+  const input = document.getElementById('slip'), drop = document.getElementById('drop');
+  const show = () => { const f = input.files[0]; const box = document.getElementById('slip-file');
+    if (!f) { box.classList.add('hidden'); box.classList.remove('flex'); return; }
+    if (f.size > 5 * 1024 * 1024) { rsToast('ไฟล์ใหญ่เกิน 5MB'); input.value = ''; return show(); }
+    document.getElementById('slip-name').textContent = `${f.name} · ${(f.size / 1024 / 1024).toFixed(2)} MB`;
+    box.classList.remove('hidden'); box.classList.add('flex'); };
+  input.addEventListener('change', show);
+  ['dragover', 'dragenter'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add('border-secondary'); }));
+  ['dragleave', 'drop'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove('border-secondary'); }));
+  drop.addEventListener('drop', e => { if (e.dataTransfer.files.length) { input.files = e.dataTransfer.files; show(); } });
+})();
+</script>
+{% endblock %}

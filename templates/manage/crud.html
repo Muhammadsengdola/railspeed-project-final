@@ -1,0 +1,57 @@
+{% extends "manage/base.html" %}{% load rs %}
+{% block title %}{{ cfg.title }}{% endblock %}{% block heading %}{{ cfg.title }}{% endblock %}
+{% block content %}
+<div class="flex flex-col sm:flex-row gap-space-sm">
+  {% include "manage/_search.html" with placeholder="ค้นหา"|add:cfg.noun|add:"..." %}
+  <a class="h-11 px-space-lg rounded-lg bg-primary-container hover:bg-primary text-on-primary font-label-md flex items-center justify-center gap-1 shadow-sm" href="?new=1{% if q %}&q={{ q|urlencode }}{% endif %}"><span class="material-symbols-outlined text-[20px]">add</span>เพิ่ม{{ cfg.noun }}</a>
+</div>
+{% if kind == 'schedules' and not q %}<p class="text-caption text-slate -mt-space-sm">แสดงรอบตั้งแต่เมื่อวานถึงอีก 14 วัน (พิมพ์ค้นหาเพื่อดูทั้งหมด) · ที่นั่งสร้างจากตู้ของขบวนอัตโนมัติ ไม่ต้องสร้างเอง</p>{% endif %}
+{% if kind == 'classes' %}<p class="text-caption text-slate -mt-space-sm">ราคา = ราคาที่นั่ง/เตียงล่าง · ส่วนต่างเตียงบนใส่ค่าติดลบ เช่น -100 · แก้ราคาแล้วมีผลกับการจองใหม่เท่านั้น</p>{% endif %}
+<div class="bg-surface rounded-xl border border-line shadow-sm overflow-x-auto">
+  <table class="w-full text-left whitespace-nowrap">
+    <thead class="bg-surface-container-low"><tr class="text-slate font-label-sm text-label-sm">
+      {% for label, attr in cfg.cols %}<th class="px-space-md py-3">{{ label }}</th>{% endfor %}<th class="px-space-md py-3 text-right">การจัดการ</th></tr></thead>
+    <tbody>
+    {% for r in rows %}
+      <tr class="border-t border-line/70 hover:bg-surface-container-low/60">
+        {% for c in r.cells %}<td class="px-space-md py-3 {% if forloop.first %}font-label-md text-ink{% else %}text-ink{% endif %}">{% if c.year and c.month %}{{ c|thdate }}{% elif c.hour is not None and c.minute is not None %}{{ c|hm }}{% else %}{{ c }}{% endif %}</td>{% endfor %}
+        <td class="px-space-md py-3"><div class="flex items-center justify-end gap-1">
+          {% if kind == 'trains' %}<a class="h-9 px-3 rounded-lg bg-secondary/10 text-secondary font-label-sm text-label-sm flex items-center gap-1 hover:bg-secondary/20" href="{% url 'manage_train_cars' r.obj.id %}"><span class="material-symbols-outlined text-[16px]">view_carousel</span>จัดการตู้</a>{% endif %}
+          <a class="h-9 px-3 rounded-lg border border-line text-ink font-label-sm text-label-sm flex items-center gap-1 hover:bg-mist" href="?edit={{ r.obj.id }}{% if q %}&q={{ q|urlencode }}{% endif %}"><span class="material-symbols-outlined text-[16px]">edit</span>แก้ไข</a>
+          <form method="post" action="{% url 'manage_crud_delete' kind r.obj.id %}">{% csrf_token %}
+            <button class="h-9 px-3 rounded-lg border border-danger/40 text-danger font-label-sm text-label-sm flex items-center gap-1 hover:bg-danger/10" type="submit" data-confirm="ยืนยันการลบ{{ cfg.noun }} {{ r.cells.0 }} หรือไม่?"><span class="material-symbols-outlined text-[16px]">delete</span>ลบ</button></form>
+        </div></td>
+      </tr>
+    {% empty %}<tr><td colspan="{{ cfg.cols|length|add:1 }}" class="px-space-md py-10 text-center text-slate">ไม่พบข้อมูล</td></tr>{% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% if form %}
+<div class="fixed inset-0 z-[80] bg-ink/60 flex items-center justify-center p-space-md">
+  <form method="post" action="{% url 'manage_crud' kind %}{% if q %}?q={{ q|urlencode }}{% endif %}" class="bg-surface rounded-2xl shadow-2xl w-full max-w-lg max-h-[92vh] flex flex-col overflow-hidden" novalidate>{% csrf_token %}
+    {% if editing %}<input type="hidden" name="id" value="{{ editing.id }}">{% endif %}
+    <div class="px-space-lg py-space-md border-b border-line flex items-center justify-between">
+      <p class="font-headline-sm text-headline-sm text-ink">{% if editing %}แก้ไข{% else %}เพิ่ม{% endif %}{{ cfg.noun }}</p>
+      <a class="w-9 h-9 rounded-full hover:bg-mist flex items-center justify-center" href="{% url 'manage_crud' kind %}"><span class="material-symbols-outlined">close</span></a>
+    </div>
+    <div class="p-space-lg overflow-y-auto flex flex-col gap-space-md">
+      {% for e in form.non_field_errors %}<p class="p-2 rounded-lg bg-danger/10 text-danger text-caption">{{ e }}</p>{% endfor %}
+      {% for f in form %}{% include "manage/_field.html" %}{% endfor %}
+    </div>
+    <div class="px-space-lg py-space-md border-t border-line flex justify-end gap-2">
+      <a class="h-11 px-space-lg rounded-lg border border-line text-ink font-label-md flex items-center hover:bg-mist" href="{% url 'manage_crud' kind %}">ยกเลิก</a>
+      <button class="h-11 px-space-lg rounded-lg bg-primary-container hover:bg-primary text-on-primary font-label-md flex items-center gap-1" type="submit"><span class="material-symbols-outlined text-[18px]">check</span>บันทึก</button>
+    </div>
+  </form>
+</div>
+{% endif %}
+{% endblock %}
+{% block scripts %}
+<script>
+document.querySelectorAll('form input:not([type=hidden]):not([type=checkbox]), form select, form textarea').forEach(el => {
+  if (el.closest('[role=search]')) return;
+  if (!el.className) el.className = 'h-11 px-3 rounded-lg bg-surface-container-low text-ink border border-line focus:outline-none focus:border-secondary w-full';
+});
+</script>
+{% endblock %}

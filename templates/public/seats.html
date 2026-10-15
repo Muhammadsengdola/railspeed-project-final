@@ -1,0 +1,251 @@
+{% extends "base.html" %}{% load rs %}
+{% block title %}เลือกตู้และที่นั่ง {{ schedule.train.number }}{% endblock %}
+{% block content %}
+<div class="flex flex-col w-full">
+<div class="max-w-[1200px] w-full mx-auto px-margin py-space-lg flex flex-col gap-space-lg">
+  {% include "partials/steps.html" with step=2 %}
+
+  <div class="flex flex-col md:flex-row md:items-end justify-between gap-space-sm bg-surface rounded-xl p-space-lg shadow-sm border border-line -mt-space-lg">
+    <div class="flex flex-col gap-space-xs">
+      <span class="font-label-sm text-label-sm uppercase tracking-wider text-secondary font-semibold">ขั้นตอนการเลือกที่นั่งบนขบวนรถ</span>
+      <h1 class="font-headline-md text-headline-md text-ink font-bold">เลือกตู้โดยสารและที่นั่ง</h1>
+    </div>
+    <div class="inline-flex items-center gap-space-sm bg-surface-container-low px-space-md py-space-sm rounded-lg border border-line">
+      <span class="material-symbols-outlined text-amber-signal">train</span>
+      <span class="font-label-md text-label-md text-ink">{{ schedule.train.number }} {{ schedule.train.train_type }} · {{ schedule.origin.name }} → {{ schedule.destination.name }} · {{ schedule.date|thdate }}</span>
+    </div>
+  </div>
+
+  {% if departed %}
+  <div class="p-space-md rounded-xl bg-danger/10 border border-danger/30 text-danger font-label-md">รอบเดินทางนี้ออกเดินทางแล้ว ไม่สามารถจองได้</div>
+  {% endif %}
+
+  <!-- Train composition -->
+  <div class="w-full flex flex-col gap-space-sm bg-surface rounded-xl p-space-lg shadow-sm border border-line">
+    <div class="flex items-center justify-between">
+      <div class="flex items-center gap-space-xs text-ink font-label-md text-label-md"><span class="material-symbols-outlined text-[20px] text-secondary">view_carousel</span>ผังขบวนรถไฟ (เลือกตู้เพื่อดูที่นั่ง)</div>
+      <span class="font-caption text-caption text-slate">หัวขบวนมุ่งหน้า{{ schedule.destination.name }} →</span>
+    </div>
+    <div class="w-full overflow-x-auto pb-space-sm pt-space-xs">
+      <div class="flex items-center gap-space-xs" style="min-width: {{ cars|length|add:1 }}40px">
+        <div class="flex flex-col items-center justify-center w-16 h-24 rounded-l-2xl bg-primary-container text-on-primary shrink-0 shadow-inner">
+          <span class="material-symbols-outlined text-[28px] text-amber-signal">downloading</span>
+          <span class="text-[10px] text-on-primary/70 uppercase tracking-wider mt-1">หัวรถจักร</span>
+        </div>
+        {% for c in cars %}
+        <div class="w-2.5 h-4 bg-line shrink-0 rounded-sm"></div>
+        <button type="button" data-coach="{{ c.car.number }}" data-color="border-{{ c.car.car_type.color }}"
+          class="coach-btn flex-1 min-w-[130px] flex flex-col justify-between p-space-sm h-24 rounded-lg text-left transition-all relative overflow-hidden focus:outline-none bg-surface-container-low border border-line hover:border-{{ c.car.car_type.color }}/60">
+          <div class="absolute top-0 right-0 w-2 h-full bg-{{ c.car.car_type.color }}"></div>
+          <div class="flex items-center justify-between pr-3">
+            <span class="font-label-md text-label-md font-bold text-ink">ตู้ {{ c.car.number }}</span>
+            <span class="coach-badge hidden px-1.5 rounded text-[10px] font-bold bg-{{ c.car.car_type.color }}/15 text-{{ c.car.car_type.color }}">กำลังดู</span>
+          </div>
+          <div>
+            <p class="font-caption text-caption text-ink font-semibold truncate">{{ c.car.car_type.name }}</p>
+            <p class="font-caption text-caption {% if c.free %}text-success{% else %}text-danger{% endif %} font-medium">{% if c.free %}ว่าง {{ c.free }}{% else %}เต็ม{% endif %} / {{ c.total }} {% if c.car.car_type.is_sleeper %}เตียง{% else %}ที่{% endif %}</p>
+          </div>
+        </button>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-space-lg items-start">
+    <div class="lg:col-span-8 flex flex-col gap-space-lg">
+      {% for c in cars %}
+      <div class="coach-panel flex flex-col gap-space-lg {% if c.car.number != current.car.number %}hidden{% endif %}" data-panel="{{ c.car.number }}">
+        <!-- legend -->
+        <div class="bg-surface rounded-xl p-space-md shadow-sm border border-line flex flex-wrap items-center justify-between gap-space-md">
+          <div class="flex flex-wrap items-center gap-space-md">
+            <div class="flex items-center gap-space-xs"><div class="w-6 h-6 rounded border border-line bg-surface"></div><span class="font-caption text-caption text-ink">ว่าง</span></div>
+            <div class="flex items-center gap-space-xs"><div class="w-6 h-6 rounded bg-line text-slate/50 flex items-center justify-center"><span class="material-symbols-outlined text-[14px]">close</span></div><span class="font-caption text-caption text-slate">จองแล้ว</span></div>
+            <div class="flex items-center gap-space-xs"><div class="w-6 h-6 rounded bg-amber-signal shadow-sm"></div><span class="font-caption text-caption text-ink font-semibold">ที่เลือก</span></div>
+          </div>
+          <div class="flex items-center gap-space-xs text-secondary font-label-sm text-label-sm bg-secondary-fixed/30 px-space-sm py-1 rounded">
+            <span class="material-symbols-outlined text-[16px]">{% if c.layout == 'seat_2x2' %}info{% else %}bed{% endif %}</span>
+            {% if c.layout == 'seat_2x2' %}<span>ริมหน้าต่าง A, D · ทางเดิน B, C · {{ c.lower_price|baht }} / ที่นั่ง</span>
+            {% else %}<span>เตียงล่าง {{ c.lower_price|baht }} · เตียงบน {{ c.upper_price|baht }}{% if c.layout == 'sleeper_room' %} (ห้องส่วนตัว){% endif %}</span>{% endif %}
+          </div>
+        </div>
+
+        <!-- seat map -->
+        <div class="bg-surface rounded-xl p-space-lg shadow-sm border border-line flex flex-col gap-space-lg">
+          <div class="flex items-center justify-between border-b border-line pb-space-sm">
+            <div class="flex items-center gap-space-sm"><span class="w-3 h-3 rounded-full bg-{{ c.car.car_type.color }}"></span>
+              <span class="font-label-md text-label-md text-ink font-bold">{% if c.layout == 'sleeper_room' %}ผังห้องคู่{% else %}ผังที่นั่ง{% endif %}: ตู้ {{ c.car.number }} · {{ c.car.car_type.name }}</span></div>
+            <div class="flex items-center gap-space-xs text-slate font-caption text-caption"><span class="material-symbols-outlined text-[18px]">arrow_upward</span><span>ทิศทางมุ่งหน้าหัวขบวน</span></div>
+          </div>
+          <div class="relative bg-surface-container-low/70 rounded-xl p-space-md border border-line/80 flex flex-col gap-space-sm overflow-x-auto">
+          {% if c.layout == 'seat_2x2' %}
+            <div class="grid grid-cols-12 gap-1 items-center px-space-xs text-center font-label-sm text-label-sm text-slate min-w-[420px]">
+              <div class="col-span-1">แถว</div><div class="col-span-2">A (หน้าต่าง)</div><div class="col-span-2">B (ทางเดิน)</div>
+              <div class="col-span-2 text-slate/70 flex items-center justify-center gap-0.5"><span class="material-symbols-outlined text-[14px]">nordic_walking</span><span class="hidden sm:inline text-[11px]">ทางเดิน</span></div>
+              <div class="col-span-2">C (ทางเดิน)</div><div class="col-span-2">D (หน้าต่าง)</div><div class="col-span-1"></div>
+            </div>
+            <div class="flex flex-col gap-2 min-w-[420px]">
+              {% for r in c.rows %}
+              <div class="grid grid-cols-12 gap-1 items-center">
+                <span class="col-span-1 text-center font-caption text-caption text-slate font-semibold">{{ r.no|stringformat:"02d" }}</span>
+                {% include "partials/seat_btn.html" with s=r.A car=c.car cls="col-span-2" %}
+                {% include "partials/seat_btn.html" with s=r.B car=c.car cls="col-span-2" %}
+                <div class="col-span-2 flex items-center justify-center"><span class="w-full border-b border-dashed border-line"></span></div>
+                {% include "partials/seat_btn.html" with s=r.C car=c.car cls="col-span-2" %}
+                {% include "partials/seat_btn.html" with s=r.D car=c.car cls="col-span-2" %}
+                <div class="col-span-1"></div>
+              </div>
+              {% endfor %}
+            </div>
+          {% elif c.layout == 'sleeper_open' %}
+            <div class="grid grid-cols-12 gap-2 items-center px-space-xs text-center font-label-sm text-label-sm text-slate pb-1 border-b border-line/60 min-w-[480px]">
+              <div class="col-span-1">ล็อก</div><div class="col-span-5 text-left pl-2">ฝั่งซ้าย (เตียงบน / เตียงล่าง)</div>
+              <div class="col-span-1 flex items-center justify-center text-slate/70"><span class="material-symbols-outlined text-[14px]">nordic_walking</span></div>
+              <div class="col-span-5 text-left pl-2">ฝั่งขวา (เตียงบน / เตียงล่าง)</div>
+            </div>
+            <div class="flex flex-col gap-3 pt-2 min-w-[480px]">
+              {% for r in c.rows %}
+              <div class="grid grid-cols-12 gap-2 items-center bg-surface p-2 rounded-lg border border-line/70 shadow-sm">
+                <span class="col-span-1 text-center font-caption text-caption text-slate font-bold">{{ r.no|stringformat:"02d" }}</span>
+                <div class="col-span-5 grid grid-cols-1 gap-2">{% for s in r.left %}{% include "partials/seat_btn.html" with s=s car=c.car cls="" %}{% endfor %}</div>
+                <div class="col-span-1 flex items-center justify-center"><span class="w-full border-b border-dashed border-line"></span></div>
+                <div class="col-span-5 grid grid-cols-1 gap-2">{% for s in r.right %}{% include "partials/seat_btn.html" with s=s car=c.car cls="" %}{% endfor %}</div>
+              </div>
+              {% endfor %}
+            </div>
+          {% else %}
+            <div class="grid grid-cols-12 gap-3 items-center px-space-xs text-center font-label-sm text-label-sm text-slate pb-2 border-b border-line/60 min-w-[480px]">
+              <div class="col-span-2 text-left pl-2">ห้องส่วนตัว</div><div class="col-span-8 text-left pl-2">ภายในห้องพัก (เตียงบน / เตียงล่าง)</div>
+              <div class="col-span-2 flex items-center justify-center gap-1 text-slate/70"><span class="material-symbols-outlined text-[14px]">nordic_walking</span><span class="text-[11px]">ทางเดิน</span></div>
+            </div>
+            <div class="flex flex-col gap-3 pt-1 min-w-[480px]">
+              {% for r in c.rows %}
+              <div class="grid grid-cols-12 gap-3 items-center bg-surface p-3 rounded-lg border border-line/70 shadow-sm {% if r.full %}opacity-60{% endif %}">
+                <div class="col-span-2 flex flex-col gap-0.5 border-r border-line pr-2">
+                  <span class="font-label-md text-label-md font-bold text-ink">ห้อง {{ r.no|stringformat:"02d" }}</span>
+                  <span class="text-[11px] text-coach-sleeper-first font-medium flex items-center gap-0.5"><span class="material-symbols-outlined text-[12px]">meeting_room</span>ชั้น 1</span>
+                </div>
+                <div class="col-span-8 grid grid-cols-2 gap-2.5">{% for s in r.beds %}{% include "partials/seat_btn.html" with s=s car=c.car cls="" %}{% endfor %}</div>
+                <div class="col-span-2 h-12 bg-surface-container-low rounded flex items-center justify-center border border-line/60 text-slate text-[11px]"><span class="material-symbols-outlined text-[16px] text-slate/70 mr-1">sensor_door</span>ทางเดิน</div>
+              </div>
+              {% endfor %}
+            </div>
+          {% endif %}
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <aside class="lg:col-span-4 lg:sticky lg:top-20 flex flex-col gap-space-md">
+      <form method="post" class="bg-surface rounded-xl p-space-lg shadow-md border border-line flex flex-col gap-space-md" id="seat-form">
+        {% csrf_token %}
+        <input type="hidden" name="car" id="car-input" value="{{ current.car.number }}">
+        <div id="seat-inputs"></div>
+        <div class="flex items-center justify-between border-b border-line pb-space-sm">
+          <h2 class="font-headline-sm text-headline-sm font-bold text-ink">สรุปการจอง</h2>
+          <span class="material-symbols-outlined text-secondary text-[22px]">confirmation_number</span>
+        </div>
+        <div class="flex flex-col gap-space-xs bg-surface-container-low p-space-md rounded-lg border border-line/60">
+          <span class="font-label-sm text-label-sm text-secondary font-bold">{{ schedule.train.number }} {{ schedule.train.train_type }}</span>
+          <div class="flex items-center justify-between text-ink font-label-md text-label-md"><span>{{ schedule.origin.name }}</span><span class="material-symbols-outlined text-[16px] text-slate">trending_flat</span><span>{{ schedule.destination.name }}</span></div>
+          <div class="flex items-center gap-space-xs text-slate font-caption text-caption mt-1"><span class="material-symbols-outlined text-[16px]">schedule</span><span>{{ schedule.date|thdate }} · {{ schedule.depart_time|hm }} – {{ schedule.arrive_time|hm }}{% if schedule.overnight %} (+1 วัน){% endif %}</span></div>
+        </div>
+        <div class="flex items-center justify-between px-space-xs">
+          <span class="font-caption text-caption text-slate">ตู้โดยสารที่กำลังดู</span>
+          <span class="font-label-md text-label-md font-bold text-ink" id="summary-coach-name"></span>
+        </div>
+        <div class="flex flex-col gap-space-xs">
+          <span class="font-caption text-caption text-slate px-space-xs">ที่นั่งที่เลือกแล้ว</span>
+          <div class="flex flex-col gap-space-xs" id="selected-seats-list"></div>
+          <p class="font-caption text-caption text-slate px-space-xs mt-1" id="seat-limit-hint"></p>
+        </div>
+        <div class="border-t border-line pt-space-md flex items-end justify-between">
+          <div class="flex flex-col"><span class="font-caption text-caption text-slate">ยอดรวมทั้งหมด</span><span class="text-slate/70 text-[11px]">ที่นั่งจะถูกกันไว้ {{ HOLD_MINUTES }} นาทีหลังยืนยัน</span></div>
+          <span class="font-headline-md text-headline-md text-amber-signal font-bold leading-none" id="summary-total-price">฿0</span>
+        </div>
+        <div class="flex flex-col gap-space-sm mt-space-xs">
+          <button class="w-full h-11 rounded-lg bg-surface border border-line text-slate hover:text-ink hover:bg-mist font-label-md text-label-md transition-colors flex items-center justify-center gap-space-xs" id="btn-clear-seats" type="button">
+            <span class="material-symbols-outlined text-[18px]">restart_alt</span><span>ล้างที่นั่ง</span></button>
+          <button class="w-full h-11 rounded-lg bg-primary-container hover:bg-primary text-on-primary font-label-md text-label-md font-bold transition-all shadow-md flex items-center justify-center gap-space-xs disabled:opacity-50 disabled:cursor-not-allowed" id="btn-confirm-seat" type="submit" {% if departed %}disabled{% endif %}>
+            <span>ยืนยันที่นั่งนี้</span><span class="material-symbols-outlined text-[18px]">arrow_forward</span></button>
+          <a class="w-full h-11 rounded-lg bg-surface border border-line text-ink hover:bg-mist font-label-md text-label-md transition-colors flex items-center justify-center gap-space-xs"
+             href="{% url 'search' %}?from={{ schedule.origin_id }}&to={{ schedule.destination_id }}&date={{ schedule.date|date:'Y-m-d' }}&pax={{ pax }}">
+            <span class="material-symbols-outlined text-[18px]">arrow_back</span><span>ย้อนกลับ</span></a>
+        </div>
+      </form>
+    </aside>
+  </div>
+</div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+(function () {
+  const MAX = {{ max_seats }};
+  const coachNames = { {% for c in cars %}"{{ c.car.number }}": "ตู้ {{ c.car.number }} · {{ c.car.car_type.name|escapejs }}"{% if not forloop.last %}, {% endif %}{% endfor %} };
+  const selected = new Map(); // seat id -> {label, car, price, note}
+  const listEl = document.getElementById('selected-seats-list');
+  const hint = document.getElementById('seat-limit-hint');
+  const totalEl = document.getElementById('summary-total-price');
+  const confirmBtn = document.getElementById('btn-confirm-seat');
+  const departed = {{ departed|yesno:"true,false" }};
+
+  function showCoach(no) {
+    document.querySelectorAll('.coach-panel').forEach(p => p.classList.toggle('hidden', p.dataset.panel !== String(no)));
+    document.querySelectorAll('.coach-btn').forEach(b => {
+      const on = b.dataset.coach === String(no);
+      b.classList.toggle('border-2', on); b.classList.toggle(b.dataset.color, on);
+      b.classList.toggle('shadow-md', on); b.classList.toggle('bg-surface', on);
+      b.classList.toggle('bg-surface-container-low', !on);
+      b.querySelector('.coach-badge').classList.toggle('hidden', !on);
+    });
+    document.getElementById('summary-coach-name').textContent = coachNames[no] || '';
+    document.getElementById('car-input').value = no;
+    const url = new URL(location.href); url.searchParams.set('car', no); history.replaceState(null, '', url);
+  }
+
+  function render() {
+    listEl.innerHTML = '';
+    let total = 0;
+    if (!selected.size) {
+      listEl.innerHTML = '<div class="p-space-sm rounded-lg bg-surface-container-low text-slate font-caption text-caption text-center">ยังไม่ได้เลือกที่นั่ง กรุณาคลิกเลือกที่นั่งในผัง</div>';
+    }
+    selected.forEach((it, id) => {
+      total += it.price;
+      const row = document.createElement('div');
+      row.className = 'flex items-center justify-between p-space-sm rounded-lg bg-mist border border-line';
+      row.innerHTML = `<div class="flex items-center gap-space-sm"><div class="w-6 h-6 rounded bg-amber-signal text-ink flex items-center justify-center"><span class="material-symbols-outlined text-[14px]">${it.note.startsWith('เตียง') ? 'bed' : 'event_seat'}</span></div>
+        <div class="flex flex-col leading-tight"><span class="font-label-md text-label-md font-bold text-ink">ตู้ ${it.car} ที่นั่ง ${it.label}</span><span class="text-[11px] text-slate">${it.note}</span></div></div>
+        <div class="flex items-center gap-1"><span class="font-label-md text-label-md font-bold text-secondary">฿${it.price.toLocaleString()}</span>
+        <button type="button" class="w-7 h-7 rounded hover:bg-surface-container text-slate" data-remove="${id}" aria-label="เอาออก"><span class="material-symbols-outlined text-[16px]">close</span></button></div>`;
+      listEl.appendChild(row);
+    });
+    hint.textContent = `เลือกได้สูงสุด ${MAX} ที่นั่ง (เลือกแล้ว ${selected.size} ที่นั่ง)`;
+    totalEl.textContent = '฿' + total.toLocaleString();
+    confirmBtn.disabled = departed || !selected.size;
+    document.querySelectorAll('.seat-btn').forEach(b => {
+      const on = selected.has(b.dataset.seat);
+      b.classList.toggle('bg-amber-signal', on); b.classList.toggle('border-amber-signal', on);
+      b.classList.toggle('bg-surface', !on); b.classList.toggle('shadow-sm', on);
+    });
+    const box = document.getElementById('seat-inputs'); box.innerHTML = '';
+    selected.forEach((_, id) => { const i = document.createElement('input'); i.type = 'hidden'; i.name = 'seat'; i.value = id; box.appendChild(i); });
+  }
+
+  document.querySelectorAll('.coach-btn').forEach(b => b.addEventListener('click', () => showCoach(b.dataset.coach)));
+  document.querySelectorAll('.seat-btn').forEach(b => b.addEventListener('click', () => {
+    const id = b.dataset.seat;
+    if (selected.has(id)) selected.delete(id);
+    else {
+      if (selected.size >= MAX) { rsToast(`เลือกได้สูงสุด ${MAX} ที่นั่งต่อการจอง`); return; }
+      selected.set(id, { label: b.dataset.label, car: b.dataset.car, price: parseInt(b.dataset.price, 10), note: b.dataset.note });
+    }
+    render();
+  }));
+  listEl.addEventListener('click', e => { const r = e.target.closest('[data-remove]'); if (r) { selected.delete(r.dataset.remove); render(); } });
+  document.getElementById('btn-clear-seats').addEventListener('click', () => { selected.clear(); render(); });
+  showCoach('{{ current.car.number }}');
+  render();
+})();
+</script>
+{% endblock %}

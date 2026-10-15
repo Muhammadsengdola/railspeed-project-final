@@ -1,0 +1,224 @@
+{% extends "base.html" %}{% load rs static %}
+{% block title %}จองตั๋วรถไฟออนไลน์{% endblock %}
+{% block head %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.css">
+<style>
+.flatpickr-calendar{font-family:"Noto Sans Thai",Sarabun,sans-serif;border-radius:12px;box-shadow:0 12px 32px -8px rgba(20,32,46,.25)}
+.flatpickr-day.selected,.flatpickr-day.selected:hover{background:rgb(var(--c-primary-container));border-color:rgb(var(--c-primary-container));color:#fff}
+.flatpickr-day.today{border-color:rgb(var(--c-amber-signal))}
+html.dark .flatpickr-calendar{background:rgb(var(--c-surface-container));box-shadow:0 12px 32px -8px rgba(0,0,0,.6)}
+html.dark .flatpickr-calendar.arrowTop:after{border-bottom-color:rgb(var(--c-surface-container))}
+html.dark .flatpickr-months .flatpickr-month,html.dark .flatpickr-current-month,html.dark .flatpickr-weekday,html.dark span.flatpickr-weekday,
+html.dark .flatpickr-months .flatpickr-prev-month,html.dark .flatpickr-months .flatpickr-next-month,html.dark .flatpickr-day{color:rgb(var(--c-ink));fill:rgb(var(--c-ink))}
+html.dark .flatpickr-day.flatpickr-disabled,html.dark .flatpickr-day.prevMonthDay,html.dark .flatpickr-day.nextMonthDay{color:rgb(var(--c-slate)/.45)}
+html.dark .flatpickr-day:hover{background:rgb(var(--c-surface-container-highest));border-color:transparent}
+html.dark .flatpickr-current-month .flatpickr-monthDropdown-months{background:rgb(var(--c-surface-container))}
+</style>
+{% endblock %}
+{% block content %}
+<div class="flex flex-col w-full">
+
+<section class="relative w-full overflow-hidden bg-primary -mt-16 pt-28 pb-32">
+
+<div class="absolute inset-0 bg-cover bg-center opacity-45 mix-blend-luminosity scale-105 transition-transform duration-1000" data-alt="Modern passenger express train gliding smoothly along Thailand scenic mountain route near sunrise. Dramatic twilight sky shifting from deep midnight blue to rich ambient golden amber tones, crisp cinematic lighting, lush green misty valley, clean luxury travel atmosphere." style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuA_WzPY6sjSJalEXV4TGcP2vLhgGlIQtrrIXy29u2GQhS5dkGxd-Kwr86oFLlUpKwXEl4NGGuoTqzd3rOfNOiI5yCR7io6aIVHwz11pdBsGYxH2mzwWdqCucp126ENF-xMf2hzNNgjE8dLXbS2xbHIa5mbYYCSidsoiGbwdtONdELCbqf4xzYM0pg8VSEDMlVY7yexD-j6O-2oHpGQzwN56UVAt_eaq16e5NDgNqEhtJGVsSvh3TwGzKQ");'></div>
+<div class="absolute inset-0 bg-gradient-to-b from-primary/95 via-primary-container/85 to-primary/95"></div>
+
+<div class="relative max-w-[1200px] mx-auto px-margin flex flex-col items-center text-center">
+<div class="inline-flex items-center gap-space-xs px-space-md py-1 rounded-full bg-surface/10 backdrop-blur-md mb-space-md">
+<span class="w-2 h-2 rounded-full bg-amber-signal animate-pulse"></span>
+<span class="text-secondary-fixed font-label-sm text-label-sm tracking-wide">ระบบสำรองที่นั่งรถไฟแห่งประเทศไทยยุคใหม่</span>
+</div>
+<h1 class="text-on-primary font-headline-xl text-headline-xl max-w-3xl leading-tight">
+        จองตั๋วรถไฟออนไลน์
+      </h1>
+<p class="mt-space-sm text-primary-fixed-dim font-body-lg text-body-lg max-w-2xl">
+        สัมผัสประสบการณ์เดินทางด้วยรถไฟไทยที่สะดวก รวดเร็ว ปลอดภัย พร้อมสำรองที่นั่งได้ทันที
+      </p>
+</div>
+</section>
+
+<section class="relative max-w-[1200px] mx-auto px-margin w-full -mt-20 z-20">
+<div class="bg-surface rounded-xl p-space-lg shadow-xl">
+<form action="{% url 'search' %}" class="grid grid-cols-1 lg:grid-cols-12 gap-space-md items-end" method="get">
+
+<div class="lg:col-span-3 flex flex-col gap-space-xs">
+<label class="text-ink font-label-md text-label-md flex items-center gap-1" for="origin-station">
+<span class="material-symbols-outlined text-coach-seat-first text-[18px]">trip_origin</span>
+            ต้นทาง
+          </label>
+<div class="relative">
+<select class="w-full h-12 bg-surface text-ink font-body-md text-body-md rounded-lg px-space-md appearance-none shadow-sm focus:outline-none focus:bg-mist transition-colors cursor-pointer" id="origin-station" name="from">{% for st in stations %}<option value="{{ st.id }}" {% if st == default_origin %}selected{% endif %}>{{ st.name }}</option>{% endfor %}</select>
+<span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate text-[20px]">
+              expand_more
+            </span>
+</div>
+</div>
+
+<div class="lg:col-span-1 flex items-center justify-center pb-1">
+<button aria-label="สลับต้นทาง/ปลายทาง" class="w-11 h-11 rounded-full bg-mist hover:bg-surface-container-high text-primary-container flex items-center justify-center transition-all duration-200 active:scale-95 shadow-sm" id="swap-station-btn" type="button">
+<span class="material-symbols-outlined text-[20px] transition-transform duration-300" id="swap-icon">
+              swap_horiz
+            </span>
+</button>
+</div>
+
+<div class="lg:col-span-3 flex flex-col gap-space-xs">
+<label class="text-ink font-label-md text-label-md flex items-center gap-1" for="dest-station">
+<span class="material-symbols-outlined text-amber-signal text-[18px]">location_on</span>
+            ปลายทาง
+          </label>
+<div class="relative">
+<select class="w-full h-12 bg-surface text-ink font-body-md text-body-md rounded-lg px-space-md appearance-none shadow-sm focus:outline-none focus:bg-mist transition-colors cursor-pointer" id="dest-station" name="to">{% for st in stations %}<option value="{{ st.id }}" {% if st == default_dest %}selected{% endif %}>{{ st.name }}</option>{% endfor %}</select>
+<span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate text-[20px]">
+              expand_more
+            </span>
+</div>
+</div>
+
+<div class="lg:col-span-2 flex flex-col gap-space-xs">
+<label class="text-ink font-label-md text-label-md flex items-center gap-1" for="travel-date">
+<span class="material-symbols-outlined text-slate text-[18px]">calendar_today</span>
+            วันที่เดินทาง
+          </label>
+<div class="relative">
+<input class="w-full h-12 bg-surface text-ink font-body-md text-body-md rounded-lg pl-space-md pr-10 shadow-sm focus:outline-none cursor-pointer" id="travel-date" name="date" required type="text" value="{{ today|date:'Y-m-d' }}" data-min="{{ today|date:'Y-m-d' }}" autocomplete="off"/>
+<span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate text-[20px]">calendar_month</span>
+</div>
+</div>
+
+<div class="lg:col-span-3 flex flex-col gap-space-xs">
+<label class="text-ink font-label-md text-label-md flex items-center gap-1" for="passengers-count">
+<span class="material-symbols-outlined text-slate text-[18px]">group</span>
+            ผู้โดยสาร
+          </label>
+<div class="relative">
+<select class="w-full h-12 bg-surface text-ink font-body-md text-body-md rounded-lg px-space-md appearance-none shadow-sm focus:outline-none focus:bg-mist transition-colors cursor-pointer" id="passengers-count" name="pax">{% for n in '1234' %}<option value="{{ n }}">{{ n }} ผู้โดยสาร</option>{% endfor %}</select>
+<span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate text-[20px]">
+              expand_more
+            </span>
+</div>
+</div>
+
+<div class="lg:col-span-12 mt-space-xs">
+<button class="w-full h-12 rounded-lg bg-primary-container text-on-primary hover:bg-primary font-label-md text-label-md flex items-center justify-center gap-space-xs transition-colors shadow-md active:translate-y-0.5 w-full" type="submit">
+<span class="material-symbols-outlined text-[20px]">search</span>
+<span class="">ค้นหาเที่ยวรถ</span>
+</button>
+</div>
+</form>
+</div>
+</section>
+
+<section class="max-w-[1200px] mx-auto px-margin w-full pt-20 pb-16">
+<div class="flex flex-col md:flex-row md:items-end justify-between mb-space-lg gap-space-xs">
+<div>
+<span class="text-coach-seat-first font-label-sm text-label-sm uppercase tracking-wider">เส้นทางยอดฮิตประจำสัปดาห์</span>
+<h2 class="text-ink font-headline-lg text-headline-lg mt-1">เส้นทางยอดนิยม</h2>
+</div>
+<p class="text-slate font-body-md text-body-md max-w-md">
+        เปิดรับทิวทัศน์สองข้างทางและวิถีชีวิตไทยกับเส้นทางสายหลักยอดนิยมสู่ทุกภูมิภาค
+      </p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-space-lg">
+
+
+
+
+
+
+{% for r in popular %}<div class="group bg-surface rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col">
+<div class="relative h-56 w-full overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="Iconic white Tha Chomphu railway bridge in Lamphun with modern Thai special express train crossing surrounded by lush green northern mountains during clear morning sunlight, tranquil cinematic railway landscape." src="{{ r.img }}"/>
+<div class="absolute top-space-sm left-space-sm backdrop-blur-md px-space-sm py-1 rounded-full text-on-primary font-label-sm text-label-sm bg-primary-container/85">{{ r.tag }}</div>
+</div>
+<div class="p-space-lg flex flex-col flex-1 justify-between">
+<div>
+<h3 class="text-ink font-headline-sm text-headline-sm">{{ r.origin.name }} – {{ r.dest.name }}</h3>
+<p class="text-slate font-body-md text-body-md mt-space-xs">{{ r.count }} ขบวนต่อวัน เลือกเวลาเดินทางและตู้โดยสารที่ต้องการได้เอง</p>
+</div>
+<div class="pt-space-lg mt-space-md flex items-center justify-between">
+<span class="text-amber-signal font-label-md text-label-md">จองล่วงหน้าได้ 30 วัน</span>
+<a class="h-11 px-space-md rounded-lg bg-mist hover:bg-primary-container text-ink hover:text-on-primary font-label-md text-label-md inline-flex items-center justify-center transition-colors" href="{% url 'search' %}?from={{ r.origin.id }}&to={{ r.dest.id }}&date={{ today|date:'Y-m-d' }}">
+              จองเส้นทางนี้
+            </a>
+</div>
+</div>
+</div>{% endfor %}</div>
+</section>
+
+<section class="w-full bg-surface-container-low py-20">
+<div class="max-w-[1200px] mx-auto px-margin">
+<div class="text-center max-w-xl mx-auto mb-14">
+<h2 class="text-ink font-headline-md text-headline-md">
+          ยกระดับการเดินทางด้วยรถไฟไทย
+        </h2>
+<p class="text-slate font-body-md text-body-md mt-space-xs">
+          มาตรฐานใหม่ของการจองตั๋วออนไลน์ที่ออกแบบให้ใช้งานง่ายและแม่นยำทุกขั้นตอน
+        </p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-space-lg">
+
+<div class="bg-surface rounded-xl p-space-xl shadow-sm flex flex-col items-center text-center">
+<div class="w-16 h-16 rounded-full bg-mist text-coach-seat-first flex items-center justify-center mb-space-md">
+<span class="material-symbols-outlined text-[32px]">touch_app</span>
+</div>
+<h3 class="text-ink font-headline-sm text-headline-sm mb-space-xs">
+            จองง่ายในไม่กี่ขั้นตอน
+          </h3>
+<p class="text-slate font-body-md text-body-md leading-relaxed">
+            ค้นหาขบวนรถ ระบุวันเดินทาง และยืนยันการจองได้อย่างรวดเร็วผ่านขั้นตอนที่ออกแบบให้สะดวกสบาย
+          </p>
+</div>
+
+<div class="bg-surface rounded-xl p-space-xl shadow-sm flex flex-col items-center text-center">
+<div class="w-16 h-16 rounded-full bg-mist text-amber-signal flex items-center justify-center mb-space-md">
+<span class="material-symbols-outlined text-[32px]">airline_seat_recline_extra</span>
+</div>
+<h3 class="text-ink font-headline-sm text-headline-sm mb-space-xs">
+            เลือกที่นั่งและตู้เองได้
+          </h3>
+<p class="text-slate font-body-md text-body-md leading-relaxed">
+            มองเห็นผังตู้โดยสารและตำแหน่งที่นั่งจริง พร้อมเลือกชั้นโดยสารที่คุณพึงพอใจได้ด้วยตนเอง
+          </p>
+</div>
+
+<div class="bg-surface rounded-xl p-space-xl shadow-sm flex flex-col items-center text-center">
+<div class="w-16 h-16 rounded-full bg-mist text-success flex items-center justify-center mb-space-md">
+<span class="material-symbols-outlined text-[32px]">qr_code_2</span>
+</div>
+<h3 class="text-ink font-headline-sm text-headline-sm mb-space-xs">
+            ตั๋วอิเล็กทรอนิกส์
+          </h3>
+<p class="text-slate font-body-md text-body-md leading-relaxed">
+            รับตั๋วโดยสารดิจิทัลพร้อมคิวอาร์โค้ดทันที สะดวก ปลอดภัย และแสดงต่อเจ้าหน้าที่ได้โดยไม่ต้องพิมพ์
+          </p>
+</div>
+</div>
+</div>
+</section>
+
+
+</div>
+
+{% endblock %}
+{% block scripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/l10n/th.min.js"></script>
+<script>
+(function () {
+  const el = document.getElementById('travel-date');
+  if (!el || !window.flatpickr) return;          // no internet: plain text field still works (YYYY-MM-DD)
+  const max = new Date(); max.setDate(max.getDate() + 30);
+  flatpickr(el, {
+    locale: 'th', dateFormat: 'Y-m-d',             // value sent to the server
+    altInput: true, altFormat: 'j M Y',            // what the user sees, e.g. 6 ต.ค. 2026
+    altInputClass: el.className,
+    minDate: el.dataset.min, maxDate: max, disableMobile: true,
+  });
+})();
+</script>
+<script>
+(function(){const b=document.getElementById('swap-station-btn'),o=document.getElementById('origin-station'),d=document.getElementById('dest-station'),i=document.getElementById('swap-icon');
+if(b&&o&&d){b.addEventListener('click',()=>{const t=o.value;o.value=d.value;d.value=t;if(i)i.classList.toggle('rotate-180');});}})();
+</script>
+{% endblock %}

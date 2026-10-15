@@ -1,0 +1,27 @@
+{% extends "base.html" %}{% load rs %}
+{% block title %}ติดต่อเรา{% endblock %}
+{% block content %}
+<div class="max-w-[800px] w-full mx-auto px-margin py-space-lg flex flex-col gap-space-lg">
+  <div class="bg-primary-container text-on-primary rounded-xl p-space-lg flex items-start gap-space-md">
+    <span class="material-symbols-outlined text-amber-signal text-[32px]">support_agent</span>
+    <div><h1 class="font-headline-md text-headline-md font-bold">ติดต่อเรา</h1>
+      <p class="text-primary-fixed-dim">ปัญหาที่ต้องให้แอดมินช่วยแก้ไข เช่น การจองผิดพลาด หรือชำระเงินแล้วสถานะไม่เปลี่ยน ส่งข้อความถึงเราได้ที่นี่ คำถามทั่วไปถาม "ผู้ช่วย" มุมขวาล่างได้เลย</p></div>
+  </div>
+  {% if sent %}
+  <div class="flex items-center gap-space-sm p-space-md rounded-xl bg-success/10 border border-success/30 text-success font-label-md"><span class="material-symbols-outlined">check_circle</span>ส่งข้อความเรียบร้อยแล้ว แอดมินจะติดต่อกลับทางอีเมล</div>
+  {% endif %}
+  <form method="post" class="bg-surface rounded-xl border border-line shadow-sm p-space-lg flex flex-col gap-space-md">{% csrf_token %}
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-space-md">
+      <label class="flex flex-col gap-space-xs"><span class="font-label-md text-label-md text-ink">ชื่อ</span>
+        <input class="h-11 px-space-md rounded-lg bg-surface-container-low text-ink focus:bg-surface focus:outline-none border border-transparent focus:border-line" name="name" value="{{ data.name }}" placeholder="ชื่อของคุณ" required maxlength="150"></label>
+      <label class="flex flex-col gap-space-xs"><span class="font-label-md text-label-md text-ink">อีเมล</span>
+        <input class="h-11 px-space-md rounded-lg bg-surface-container-low text-ink focus:bg-surface focus:outline-none border border-transparent focus:border-line" name="email" type="email" value="{{ data.email }}" placeholder="อีเมลสำหรับติดต่อกลับ" required></label>
+    </div>
+    <label class="flex flex-col gap-space-xs"><span class="font-label-md text-label-md text-ink">หัวข้อ</span>
+      <input class="h-11 px-space-md rounded-lg bg-surface-container-low text-ink focus:bg-surface focus:outline-none border border-transparent focus:border-line" name="subject" value="{{ data.subject }}" placeholder="เช่น ชำระเงินแล้วสถานะไม่เปลี่ยน (รหัสจอง B1001)" required maxlength="200"></label>
+    <label class="flex flex-col gap-space-xs"><span class="font-label-md text-label-md text-ink">ข้อความ</span>
+      <textarea class="min-h-[160px] p-space-md rounded-lg bg-surface-container-low text-ink focus:bg-surface focus:outline-none border border-transparent focus:border-line" name="message" placeholder="รายละเอียดปัญหาที่พบ" required>{{ data.message }}</textarea></label>
+    <button class="h-12 rounded-lg bg-primary-container hover:bg-primary text-on-primary font-label-md text-label-md flex items-center justify-center gap-1 shadow-md" type="submit"><span class="material-symbols-outlined text-[20px] text-amber-signal">send</span>ส่งข้อความ</button>
+  </form>
+</div>
+{% endblock %}

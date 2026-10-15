@@ -1,0 +1,52 @@
+{% extends "base.html" %}{% load rs %}
+{% block title %}การจองของฉัน{% endblock %}
+{% block content %}
+<div class="max-w-[1000px] w-full mx-auto px-margin py-space-lg flex flex-col gap-space-lg">
+  <div>
+    <h1 class="font-headline-lg text-headline-lg text-ink font-bold">การจองของฉัน</h1>
+    <p class="text-slate">ดูตั๋ว ตรวจสถานะการชำระเงิน และยกเลิกการจองได้ที่นี่</p>
+  </div>
+  <div class="flex flex-wrap gap-space-sm" role="tablist">
+    <a href="?tab=upcoming" class="flex items-center gap-space-xs px-space-lg py-space-sm rounded-lg font-label-md text-label-md min-h-[44px] {% if tab == 'upcoming' %}bg-primary-container text-on-primary shadow-sm{% else %}bg-surface border border-line text-slate hover:text-ink{% endif %}"><span class="material-symbols-outlined text-[18px]">schedule</span>กำลังจะเดินทาง <span class="px-1.5 rounded-full text-[11px] {% if tab == 'upcoming' %}bg-amber-signal text-ink{% else %}bg-surface-container{% endif %}">{{ counts.upcoming }}</span></a>
+    <a href="?tab=completed" class="flex items-center gap-space-xs px-space-lg py-space-sm rounded-lg font-label-md text-label-md min-h-[44px] {% if tab == 'completed' %}bg-primary-container text-on-primary shadow-sm{% else %}bg-surface border border-line text-slate hover:text-ink{% endif %}"><span class="material-symbols-outlined text-[18px]">check_circle</span>เสร็จสิ้น <span class="px-1.5 rounded-full text-[11px] bg-surface-container text-ink">{{ counts.completed }}</span></a>
+    <a href="?tab=cancelled" class="flex items-center gap-space-xs px-space-lg py-space-sm rounded-lg font-label-md text-label-md min-h-[44px] {% if tab == 'cancelled' %}bg-primary-container text-on-primary shadow-sm{% else %}bg-surface border border-line text-slate hover:text-ink{% endif %}"><span class="material-symbols-outlined text-[18px]">cancel</span>ยกเลิก <span class="px-1.5 rounded-full text-[11px] bg-surface-container text-ink">{{ counts.cancelled }}</span></a>
+  </div>
+
+  <div class="flex flex-col gap-space-md">
+  {% for b in bookings %}{% with s=b.schedule %}
+    <div class="bg-surface rounded-xl border border-line shadow-sm p-space-lg flex flex-col md:flex-row md:items-center gap-space-md">
+      <div class="flex-1 flex flex-col gap-space-xs">
+        <div class="flex flex-wrap items-center gap-space-sm">
+          <span class="font-headline-sm text-headline-sm text-primary font-bold">{{ b.code }}</span>
+          <span class="px-2.5 py-0.5 rounded-full text-label-sm font-label-sm {{ b.status|badge }}">{{ b.get_status_display }}</span>
+          <span class="text-caption text-slate">{{ s.train.number }} {{ s.train.train_type }}</span>
+        </div>
+        <p class="font-label-md text-label-md text-ink">{{ s.origin.name }} → {{ s.destination.name }}</p>
+        <p class="text-caption text-slate flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">event</span>{{ s.date|thday }} {{ s.date|thdate }} · {{ s.depart_time|hm }} – {{ s.arrive_time|hm }}{% if s.overnight %} (+1 วัน){% endif %}</p>
+        <p class="text-caption text-slate flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">event_seat</span>{% for bs in b.shown_seats %}ตู้ {{ bs.seat.carriage.number }} ที่นั่ง {{ bs.seat.label }}{% if not forloop.last %}, {% endif %}{% endfor %} · {{ b.total|baht }}</p>
+        {% if b.status == 'held' %}<p class="text-caption text-ink">ยังไม่ได้ชำระเงิน · ที่นั่งถูกกันไว้อีก {{ b.seconds_left }} วินาที</p>{% endif %}
+      </div>
+      <div class="flex md:flex-col gap-space-sm shrink-0">
+        {% if b.status == 'held' %}
+        <a class="h-10 px-space-md rounded-lg bg-primary-container text-on-primary hover:bg-primary font-label-md text-label-md flex items-center justify-center gap-1" href="{% url 'ticket' b.id %}">ชำระเงินต่อ<span class="material-symbols-outlined text-[18px]">chevron_right</span></a>
+        {% else %}
+        <a class="h-10 px-space-md rounded-lg bg-primary-container text-on-primary hover:bg-primary font-label-md text-label-md flex items-center justify-center gap-1" href="{% url 'ticket' b.id %}">ดูรายละเอียด<span class="material-symbols-outlined text-[18px]">chevron_right</span></a>
+        {% endif %}
+        {% if b.can_cancel %}
+        <form method="post" action="{% url 'cancel_booking' b.id %}">{% csrf_token %}<input type="hidden" name="next" value="{{ request.get_full_path }}">
+          <button class="w-full h-10 px-space-md rounded-lg bg-surface border border-danger/40 text-danger hover:bg-danger/10 font-label-md text-label-md flex items-center justify-center gap-1" type="submit" data-confirm="ยกเลิกการจอง {{ b.code }} และคืนที่นั่งใช่ไหม?"><span class="material-symbols-outlined text-[18px]">close</span>ยกเลิก</button>
+        </form>
+        {% endif %}
+      </div>
+    </div>
+  {% endwith %}{% empty %}
+    <div class="bg-surface rounded-xl border border-line p-space-xl text-center flex flex-col items-center gap-space-sm">
+      <span class="material-symbols-outlined text-[48px] text-slate">confirmation_number</span>
+      <p class="font-headline-sm text-headline-sm text-ink">ไม่มีรายการการจอง</p>
+      <p class="text-slate">{% if tab == 'upcoming' %}ยังไม่มีการเดินทางที่กำลังจะมาถึง{% elif tab == 'completed' %}ยังไม่มีการเดินทางที่เสร็จสิ้น{% else %}ไม่มีการจองที่ถูกยกเลิก{% endif %}</p>
+      <a class="mt-space-sm h-11 px-space-lg rounded-lg bg-primary-container text-on-primary font-label-md flex items-center" href="{% url 'home' %}">ค้นหาเที่ยวรถ</a>
+    </div>
+  {% endfor %}
+  </div>
+</div>
+{% endblock %}

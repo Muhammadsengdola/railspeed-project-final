@@ -1,0 +1,22 @@
+{% load static rs %}<!DOCTYPE html>
+<html lang="th"><head>{% include "partials/head.html" %}<title>เข้าสู่ระบบผู้ดูแล · RailSpeed</title></head>
+<body class="min-h-screen bg-primary-container font-body-md flex items-center justify-center p-space-lg relative overflow-hidden">
+  <div class="absolute inset-0 opacity-20 pointer-events-none" style="background-image:repeating-linear-gradient(90deg,transparent 0 46px,rgba(255,255,255,.08) 46px 48px)"></div>
+  <div class="relative w-full max-w-[420px] bg-surface rounded-2xl shadow-2xl p-space-xl flex flex-col gap-space-lg">
+    <div class="flex flex-col items-center gap-space-sm text-center">
+      <div class="w-14 h-14 rounded-2xl bg-primary-container flex items-center justify-center"><span class="material-symbols-outlined text-amber-signal text-[30px]">admin_panel_settings</span></div>
+      <h1 class="font-headline-md text-headline-md text-ink font-bold">RailSpeed แอดมิน</h1>
+      <p class="text-slate">เข้าสู่ระบบสำหรับผู้ดูแลระบบเท่านั้น</p>
+    </div>
+    {% for m in messages %}<div class="p-3 rounded-lg bg-danger/10 border border-danger/30 text-danger font-label-md text-label-md">{{ m }}</div>{% endfor %}
+    <form method="post" class="flex flex-col gap-space-md">{% csrf_token %}
+      <label class="flex flex-col gap-space-xs"><span class="font-label-md text-label-md text-ink">อีเมล</span>
+        <input class="h-12 px-space-md rounded-lg bg-surface-container-low text-ink focus:bg-surface focus:outline-none border border-line" type="email" name="email" value="{{ email }}" placeholder="admin@railspeed.th" required autofocus></label>
+      <label class="flex flex-col gap-space-xs"><span class="font-label-md text-label-md text-ink">รหัสผ่าน</span>
+        <input class="h-12 px-space-md rounded-lg bg-surface-container-low text-ink focus:bg-surface focus:outline-none border border-line" type="password" name="password" required></label>
+      <button class="h-12 rounded-lg bg-primary-container hover:bg-primary text-on-primary font-label-md text-label-md flex items-center justify-center gap-1 shadow-md" type="submit">เข้าสู่ระบบ<span class="material-symbols-outlined text-[18px]">arrow_forward</span></button>
+    </form>
+    <a class="text-center text-caption text-slate hover:text-ink" href="{% url 'home' %}">← กลับหน้าเว็บผู้ใช้</a>
+  </div>
+<script src="{% static 'rs/app.js' %}"></script>
+</body></html>

@@ -1,0 +1,6 @@
+{% load rs %}{% if s.taken %}<button class="{{ cls }} h-12 rounded-lg bg-line text-slate/60 font-label-sm text-label-sm cursor-not-allowed flex flex-col items-center justify-center leading-tight" disabled type="button" title="จองแล้ว">
+  <span class="font-bold text-[12px]">{{ s.label }}</span>{% if s.berth %}<span class="text-[10px]">จองแล้ว</span>{% endif %}
+</button>{% else %}<button class="seat-btn {{ cls }} h-12 rounded-lg bg-surface border border-line font-label-sm text-label-sm text-ink hover:border-amber-signal hover:shadow transition-all flex flex-col items-center justify-center leading-tight focus:outline-none"
+  type="button" data-seat="{{ s.id }}" data-label="{{ s.label }}" data-car="{{ car.number }}" data-price="{{ s.price }}" data-note="{{ s.seat_note }}" title="ตู้ {{ car.number }} · {{ s.label }} · {{ s.seat_note }} · {{ s.price|baht }}">
+  <span class="font-bold text-[12px]">{{ s.label }}</span>{% if s.berth %}<span class="text-[10px] {% if s.berth == 'lower' %}text-ink font-semibold{% else %}text-slate{% endif %}">{{ s.berth_label }} · {{ s.price|baht }}</span>{% endif %}
+</button>{% endif %}

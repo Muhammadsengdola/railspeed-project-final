@@ -1,0 +1,21 @@
+{# usage: {% include "partials/steps.html" with step=2 %} #}
+<div class="w-full bg-surface rounded-xl shadow-[0_2px_8px_-2px_rgba(20,32,46,0.06),0_1px_4px_-1px_rgba(20,32,46,0.04)] border border-line/60 px-space-lg py-space-md mb-space-lg">
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-space-sm items-center">
+    {% for s in "1234" %}{% with n=forloop.counter %}
+    <div class="flex items-center gap-space-sm {% if n > step %}opacity-60{% endif %}">
+      {% if n < step %}
+      <div class="w-8 h-8 rounded-full bg-success/15 text-success flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-[18px]">check</span></div>
+      {% elif n == step %}
+      <div class="w-8 h-8 rounded-full bg-primary-container text-on-primary flex items-center justify-center font-label-md shrink-0"><span class="text-amber-signal">{{ n }}</span></div>
+      {% else %}
+      <div class="w-8 h-8 rounded-full bg-surface-container-high text-slate flex items-center justify-center font-label-md shrink-0">{{ n }}</div>
+      {% endif %}
+      <div class="min-w-0">
+        <p class="font-caption text-caption {% if n == step %}text-secondary{% else %}text-slate{% endif %} truncate">{% if n < step %}เสร็จแล้ว{% elif n == step %}ขั้นตอนปัจจุบัน{% else %}ขั้นตอนถัดไป{% endif %}</p>
+        <p class="font-label-md text-label-md {% if n == step %}text-primary font-bold{% elif n < step %}text-ink{% else %}text-slate{% endif %} truncate">
+          {% if n == 1 %}1. ค้นหาเที่ยวรถ{% elif n == 2 %}2. เลือกที่นั่ง{% elif n == 3 %}3. ข้อมูลผู้โดยสาร{% else %}4. ชำระเงิน{% endif %}</p>
+      </div>
+    </div>
+    {% endwith %}{% endfor %}
+  </div>
+</div>

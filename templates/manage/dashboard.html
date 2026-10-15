@@ -1,0 +1,38 @@
+{% extends "manage/base.html" %}{% load rs humanize %}
+{% block title %}แดชบอร์ด{% endblock %}{% block heading %}ภาพรวมระบบ{% endblock %}
+{% block content %}
+<p class="text-slate -mt-space-sm">ข้อมูล ณ วันที่ {{ days.6.date|thdate }}</p>
+<div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-space-lg">
+  <div class="bg-surface rounded-xl border border-line shadow-sm p-space-lg flex items-center justify-between"><div><p class="text-slate font-label-md">การจองวันนี้</p><p class="font-headline-lg text-headline-lg text-ink font-bold">{{ today_count }}<span class="text-body-md text-slate font-normal"> รายการ</span></p></div><span class="w-12 h-12 rounded-xl bg-secondary/10 text-secondary flex items-center justify-center material-symbols-outlined">confirmation_number</span></div>
+  <div class="bg-surface rounded-xl border border-line shadow-sm p-space-lg flex items-center justify-between"><div><p class="text-slate font-label-md">รายได้ (ยืนยันแล้ว)</p><p class="font-headline-lg text-headline-lg text-ink font-bold">{{ revenue|baht }}</p></div><span class="w-12 h-12 rounded-xl bg-success/10 text-success flex items-center justify-center material-symbols-outlined">payments</span></div>
+  <div class="bg-surface rounded-xl border border-line shadow-sm p-space-lg flex items-center justify-between"><div><p class="text-slate font-label-md">ที่นั่งที่จองแล้ว (รอบที่ยังไม่ออก)</p><p class="font-headline-lg text-headline-lg text-ink font-bold">{{ seats_booked }}<span class="text-body-md text-slate font-normal"> ที่นั่ง</span></p></div><span class="w-12 h-12 rounded-xl bg-amber-signal/15 text-amber-signal flex items-center justify-center material-symbols-outlined">airline_seat_recline_normal</span></div>
+  <a href="{% url 'manage_bookings' %}?status=pending" class="bg-surface rounded-xl border {% if pending_count %}border-amber-signal/60{% else %}border-line{% endif %} shadow-sm p-space-lg flex items-center justify-between hover:shadow-md"><div><p class="text-slate font-label-md">สลิปรอตรวจ</p><p class="font-headline-lg text-headline-lg text-ink font-bold">{{ pending_count }}<span class="text-body-md text-slate font-normal"> รายการ</span></p></div><span class="w-12 h-12 rounded-xl bg-warning-bg text-amber-signal flex items-center justify-center material-symbols-outlined">hourglass_top</span></a>
+</div>
+<div class="grid grid-cols-1 xl:grid-cols-5 gap-space-lg">
+  <div class="xl:col-span-2 bg-surface rounded-xl border border-line shadow-sm p-space-lg flex flex-col gap-space-md">
+    <h2 class="font-headline-sm text-headline-sm text-ink">การจอง 7 วันล่าสุด</h2>
+    <div class="flex items-end gap-space-sm h-48">
+      {% for d in days %}
+      <div class="flex-1 flex flex-col items-center gap-1 h-full justify-end" title="{{ d.date|thdate }}: {{ d.count }} รายการ">
+        <span class="text-caption text-ink font-bold">{{ d.count }}</span>
+        <div class="w-full rounded-t-md {% if forloop.last %}bg-amber-signal{% else %}bg-primary-container dark:bg-secondary{% endif %}" style="height: {{ d.pct }}%"></div>
+        <span class="text-[11px] text-slate">{{ d.date|thdate:True }}</span>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  <div class="xl:col-span-3 bg-surface rounded-xl border border-line shadow-sm p-space-lg flex flex-col gap-space-md">
+    <div class="flex items-center justify-between"><h2 class="font-headline-sm text-headline-sm text-ink">การจองล่าสุด</h2>
+      <a class="text-secondary font-label-md text-label-md flex items-center gap-1 hover:underline" href="{% url 'manage_bookings' %}">ดูทั้งหมด<span class="material-symbols-outlined text-[18px]">arrow_forward</span></a></div>
+    <div class="overflow-x-auto"><table class="w-full text-left whitespace-nowrap">
+      <thead><tr class="text-slate font-label-sm text-label-sm border-b border-line"><th class="py-2 pr-4">เลขจอง</th><th class="py-2 pr-4">ผู้จอง</th><th class="py-2 pr-4">ขบวน</th><th class="py-2 pr-4">ที่นั่ง</th><th class="py-2">สถานะ</th></tr></thead>
+      <tbody>{% for b in recent %}
+        <tr class="border-b border-line/60"><td class="py-3 pr-4 font-label-md text-primary"><a href="{% url 'manage_bookings' %}?q={{ b.code }}">{{ b.code }}</a></td><td class="py-3 pr-4 text-ink">{{ b.user.get_full_name }}</td>
+        <td class="py-3 pr-4 text-ink">{{ b.schedule.train.number }} <span class="text-slate text-caption">{{ b.schedule.date|thdate:True }}</span></td>
+        <td class="py-3 pr-4 text-ink">{% for bs in b.seats.all %}{{ bs.seat.carriage.number }}-{{ bs.seat.label }}{% if not forloop.last %}, {% endif %}{% endfor %}</td>
+        <td class="py-3"><span class="px-2.5 py-0.5 rounded-full text-label-sm font-label-sm {{ b.status|badge }}">{{ b.get_status_display }}</span></td></tr>
+      {% empty %}<tr><td colspan="5" class="py-6 text-center text-slate">ยังไม่มีการจอง</td></tr>{% endfor %}</tbody>
+    </table></div>
+  </div>
+</div>
+{% endblock %}

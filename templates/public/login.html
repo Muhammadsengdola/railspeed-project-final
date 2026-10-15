@@ -1,0 +1,146 @@
+{% extends "base.html" %}{% load rs static %}
+{% block title %}เข้าสู่ระบบ{% endblock %}
+{% block content %}
+<div class="flex flex-col w-full">
+<section class="w-full py-space-xl px-margin flex items-center justify-center min-h-[calc(100vh-4rem)]">
+<div class="w-full max-w-[1080px] bg-surface rounded-2xl shadow-xl overflow-hidden grid grid-cols-1 lg:grid-cols-12 min-h-[640px]">
+
+<div class="lg:col-span-6 relative flex flex-col justify-between p-space-xl overflow-hidden min-h-[420px] lg:min-h-full">
+
+<img alt="ทัศนียภาพรถไฟไทยแล่นผ่านหุบเขาและธรรมชาติเขียวขจี" class="absolute inset-0 w-full h-full object-cover object-center transform scale-105 transition-transform duration-1000 ease-out" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCfdiaQN0Q_plsc6vP5_EakekX0NByB1DM2JNCIAnRl8zhkbfAZOaK63laVsQSLZzOU9OazG92z62_QRHTNVIL5wUZOgw0tRp-iFgI8CPp230hAYf3cBLgF_cWl3uKEVKaFbOBrnYUlSCi91rrb2bkQ1pvG976GQH3Ior-BbkrJgD9rcCZg7QR_jBHd3jUnwfE8cI0O4mb-jhKN4C7yfwSRZAJumTvR22zklJyv3yDI600SOnlR9FbzeQ"/>
+
+<div class="absolute inset-0 bg-gradient-to-t from-primary via-primary-container/85 to-primary/60"></div>
+<div class="absolute -right-20 -bottom-20 w-80 h-80 rounded-full bg-secondary/20 blur-3xl pointer-events-none"></div>
+
+<div class="relative z-10">
+<div class="inline-flex items-center gap-space-xs px-3 py-1.5 rounded-full bg-surface/15 backdrop-blur-md text-on-primary font-label-sm text-label-sm mb-space-lg shadow-sm">
+<span class="text-amber-signal">●</span>
+<span class="">ระบบบริการจองตั๋วรถไฟยุคใหม่</span>
+</div>
+<div class="flex items-center gap-space-xs text-on-primary font-headline-sm text-headline-sm tracking-tight mb-space-xs">
+<span class="text-2xl">🚆</span>
+<span class="font-bold">RailSpeed</span>
+</div>
+<h2 class="text-on-primary font-headline-md text-headline-md tracking-tight leading-snug mt-space-sm mb-space-sm">
+            เชื่อมต่อทุกจุดหมาย<br/>ปลายทางทั่วไทย
+          </h2>
+<p class="text-white/85 font-body-md text-body-md max-w-md leading-relaxed">
+            สัมผัสประสบการณ์การเดินทางด้วยรถไฟไทยที่สะดวก รวดเร็ว ปลอดภัย พร้อมจัดการการจองของคุณได้ตลอด 24 ชั่วโมง
+          </p>
+</div>
+
+<div class="relative z-10 mt-space-xl flex flex-col gap-space-sm">
+<div class="flex items-center gap-space-sm bg-surface/10 backdrop-blur-md px-space-md py-space-sm rounded-xl">
+<div class="w-8 h-8 rounded-lg bg-amber-signal/20 text-amber-signal flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-lg" style='font-variation-settings: "FILL" 1;'>airline_seat_recline_extra</span>
+</div>
+<div>
+<div class="text-on-primary font-label-md text-label-md">ระบบจองที่นั่งแบบเรียลไทม์</div>
+<div class="text-white/85/75 font-caption text-caption">เลือกผังโบกี้และตำแหน่งที่นั่งได้ทันทีตามใจชอบ</div>
+</div>
+</div>
+<div class="flex items-center gap-space-sm bg-surface/10 backdrop-blur-md px-space-md py-space-sm rounded-xl">
+<div class="w-8 h-8 rounded-lg bg-secondary-container/20 text-secondary-fixed flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-lg" style='font-variation-settings: "FILL" 1;'>confirmation_number</span>
+</div>
+<div>
+<div class="text-on-primary font-label-md text-label-md">รับตั๋วอิเล็กทรอนิกส์ e-Ticket ทันที</div>
+<div class="text-white/85/75 font-caption text-caption">สแกนขึ้นรถผ่าน QR Code สะดวกรวดเร็วไม่ยุ่งยาก</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="lg:col-span-6 bg-surface p-space-xl lg:p-12 flex flex-col justify-center">
+<div class="w-full max-w-[420px] mx-auto">
+
+<div class="mb-space-lg">
+<div class="inline-flex items-center gap-1.5 text-secondary font-label-sm text-label-sm uppercase tracking-widest mb-space-xs">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+              สมาชิก RailSpeed
+            </div>
+<h1 class="text-primary-container font-headline-lg text-headline-lg tracking-tight">
+              เข้าสู่ระบบ
+            </h1>
+<p class="text-on-surface-variant font-body-md text-body-md mt-space-xs">
+              กรุณากรอกข้อมูลบัญชีเพื่อเข้าสู่ระบบ RailSpeed
+            </p>
+</div>
+
+<form action="{% url 'login' %}" class="flex flex-col gap-space-md" id="loginForm" method="post">{% csrf_token %}<input type="hidden" name="next" value="{{ next }}">
+
+<div class="flex flex-col gap-1.5">
+<label class="text-ink font-label-md text-label-md" for="email">
+                อีเมล
+              </label>
+<div class="relative flex items-center">
+<span class="material-symbols-outlined absolute left-3.5 text-slate text-xl pointer-events-none select-none">
+                  mail
+                </span>
+<input autocomplete="email" class="w-full h-11 pl-11 pr-4 bg-surface text-ink font-body-md text-body-md rounded-lg shadow-sm placeholder:text-outline-variant focus:outline-none focus:ring-2 focus:ring-coach-seat-first transition-all" id="email" name="email" placeholder="example@email.com" required="" type="email" value="{{ email }}"/>
+</div>
+</div>
+
+<div class="flex flex-col gap-1.5">
+<label class="text-ink font-label-md text-label-md" for="password">
+                รหัสผ่าน
+              </label>
+<div class="relative flex items-center">
+<span class="material-symbols-outlined absolute left-3.5 text-slate text-xl pointer-events-none select-none">
+                  lock
+                </span>
+<input autocomplete="current-password" class="w-full h-11 pl-11 pr-11 bg-surface text-ink font-body-md text-body-md rounded-lg shadow-sm placeholder:text-outline-variant focus:outline-none focus:ring-2 focus:ring-coach-seat-first transition-all" id="password" name="password" placeholder="••••••••" required="" type="password"/>
+<button aria-label="แสดงหรือซ่อนรหัสผ่าน" class="absolute right-2.5 w-8 h-8 flex items-center justify-center text-slate hover:text-ink transition-colors rounded-full" id="togglePassword" type="button">
+<span class="material-symbols-outlined text-xl" id="eyeIcon">
+                    visibility
+                  </span>
+</button>
+</div>
+</div>
+
+<div class="mt-space-sm pt-space-xs">
+<button class="w-full h-11 flex items-center justify-center rounded-lg bg-primary-container hover:bg-primary text-on-primary font-label-md text-label-md shadow-md hover:shadow-lg transition-all active:scale-[0.99] gap-space-xs w-full" type="submit">
+<span class="">เข้าสู่ระบบ</span>
+<span class="material-symbols-outlined text-lg">arrow_forward</span>
+</button>
+</div>
+
+<div class="text-center pt-space-sm text-on-surface-variant font-body-md text-body-md">
+              ยังไม่มีบัญชีสมาชิก?
+              <a class="font-label-md text-label-md text-secondary hover:text-coach-seat-first ml-1 underline decoration-2 underline-offset-4 transition-colors" href="{% url 'register' %}{% if next %}?next={{ next|urlencode }}{% endif %}">
+                สมัครสมาชิก
+              </a>
+</div>
+</form>
+</div>
+</div>
+</div>
+</section>
+
+
+
+
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+    (function() {
+      const toggleBtn = document.getElementById('togglePassword');
+      const passwordInput = document.getElementById('password');
+      const eyeIcon = document.getElementById('eyeIcon');
+
+      if (toggleBtn && passwordInput && eyeIcon) {
+        toggleBtn.addEventListener('click', function() {
+          const isPassword = passwordInput.getAttribute('type') === 'password';
+          if (isPassword) {
+            passwordInput.setAttribute('type', 'text');
+            eyeIcon.textContent = 'visibility_off';
+          } else {
+            passwordInput.setAttribute('type', 'password');
+            eyeIcon.textContent = 'visibility';
+          }
+        });
+      }
+    })();
+  </script>
+{% endblock %}

@@ -1,0 +1,32 @@
+{% extends "manage/base.html" %}{% load rs %}
+{% block title %}ตู้ของขบวน {{ train.number }}{% endblock %}{% block heading %}ตู้ของขบวน {{ train.number }}{% endblock %}
+{% block content %}
+<a class="inline-flex items-center gap-1 text-slate hover:text-ink font-label-md w-fit" href="{% url 'manage_crud' 'trains' %}"><span class="material-symbols-outlined text-[18px]">arrow_back</span>กลับไปขบวนรถ</a>
+<div class="bg-surface rounded-xl border border-line shadow-sm p-space-lg flex flex-col gap-space-md">
+  <p class="font-label-md text-ink">ผังขบวน {{ train.number }} ({{ train.train_type }}) · {{ cars|length }} ตู้</p>
+  <div class="overflow-x-auto pb-2"><div class="flex items-center gap-space-xs min-w-max">
+    <div class="flex flex-col items-center justify-center w-16 h-20 rounded-l-2xl bg-primary-container text-on-primary"><span class="material-symbols-outlined text-amber-signal">downloading</span><span class="text-[10px]">หัวรถจักร</span></div>
+    {% for c in cars %}<div class="w-2.5 h-4 bg-line rounded-sm"></div>
+    <div class="w-32 h-20 rounded-lg border border-line bg-surface-container-low p-2 relative overflow-hidden flex flex-col justify-between"><div class="absolute right-0 top-0 w-2 h-full bg-{{ c.car_type.color }}"></div>
+      <span class="font-label-md text-ink">ตู้ {{ c.number }}</span><span class="text-caption text-slate truncate pr-2">{{ c.car_type.name }}</span></div>{% endfor %}
+  </div></div>
+  <form method="post" class="flex flex-col sm:flex-row gap-space-sm">{% csrf_token %}
+    <select name="car_type" class="h-11 px-3 rounded-lg bg-surface-container-low text-ink border border-line flex-1">
+      {% for t in car_types %}<option value="{{ t.id }}">{{ t.name }} — {{ t.get_layout_display }}</option>{% endfor %}
+    </select>
+    <button class="h-11 px-space-lg rounded-lg bg-primary-container hover:bg-primary text-on-primary font-label-md flex items-center justify-center gap-1" type="submit"><span class="material-symbols-outlined text-[20px]">add</span>เพิ่มตู้ (ต่อท้ายขบวน)</button>
+  </form>
+</div>
+<div class="bg-surface rounded-xl border border-line shadow-sm overflow-x-auto">
+  <table class="w-full text-left whitespace-nowrap">
+    <thead class="bg-surface-container-low"><tr class="text-slate font-label-sm text-label-sm"><th class="px-space-md py-3">ตู้</th><th class="px-space-md py-3">ประเภท</th><th class="px-space-md py-3">ผัง</th><th class="px-space-md py-3">จำนวนที่นั่ง</th><th class="px-space-md py-3 text-right">การจัดการ</th></tr></thead>
+    <tbody>{% for c in cars %}
+      <tr class="border-t border-line/70"><td class="px-space-md py-3 font-label-md text-ink">ตู้ {{ c.number }}</td>
+        <td class="px-space-md py-3 text-ink"><span class="inline-block w-2.5 h-2.5 rounded-full bg-{{ c.car_type.color }} mr-1"></span>{{ c.car_type.name }}</td>
+        <td class="px-space-md py-3 text-slate">{{ c.car_type.get_layout_display }}</td><td class="px-space-md py-3 text-ink">{{ c.seat_count }}</td>
+        <td class="px-space-md py-3 text-right"><form method="post" action="{% url 'manage_train_car_delete' train.id c.id %}" class="inline">{% csrf_token %}
+          <button class="h-9 px-3 rounded-lg border border-danger/40 text-danger font-label-sm text-label-sm inline-flex items-center gap-1 hover:bg-danger/10" type="submit" data-confirm="ลบตู้ {{ c.number }} หรือไม่? (ลบได้เฉพาะตู้ที่ยังไม่เคยมีการจอง)"><span class="material-symbols-outlined text-[16px]">delete</span>ลบ</button></form></td></tr>
+    {% empty %}<tr><td colspan="5" class="px-space-md py-10 text-center text-slate">ขบวนนี้ยังไม่มีตู้</td></tr>{% endfor %}</tbody>
+  </table>
+</div>
+{% endblock %}

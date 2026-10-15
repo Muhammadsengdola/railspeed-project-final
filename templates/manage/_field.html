@@ -1,0 +1,6 @@
+<label class="flex flex-col gap-1 {% if f.field.widget.input_type == 'checkbox' %}flex-row items-center gap-2{% endif %}">
+  <span class="font-label-md text-label-md text-ink">{{ f.label }}</span>
+  {{ f }}
+  {% if f.help_text %}<span class="text-caption text-slate">{{ f.help_text }}</span>{% endif %}
+  {% for e in f.errors %}<span class="text-caption text-danger">{{ e }}</span>{% endfor %}
+</label>

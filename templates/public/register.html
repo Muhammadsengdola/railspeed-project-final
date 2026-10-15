@@ -1,0 +1,152 @@
+{% extends "base.html" %}{% load rs static %}
+{% block title %}สมัครสมาชิก{% endblock %}
+{% block content %}
+<div class="flex flex-col w-full py-space-xl px-margin items-center justify-center min-h-[calc(100vh-8rem)]">
+<div class="w-full max-w-5xl rounded-xl shadow-xl overflow-hidden bg-surface grid grid-cols-1 md:grid-cols-2">
+
+<div class="relative flex flex-col justify-between p-space-xl overflow-hidden min-h-[580px] bg-primary-container text-on-primary">
+
+<div class="absolute inset-0 bg-cover bg-center opacity-65 pointer-events-none scale-105 transition-transform duration-700 hover:scale-100" data-alt="Scenic modern train railway landscape" style='background-image: url("https://lh3.googleusercontent.com/aida/AEtjO1V40cuADp4LDJYqhYNCOqT7EsHvTjRbd-Q-xL4ARhaj6wFxJpbfTKi5mAdeGbkqd_FIMKDaT3JSnxgdq1qDtOEh2exHKtkmHphK2BBbkEJhTb8_2hPo4emEwB7NOkaiIvSapo9X1COrTisDkRU_4CBXVseV63baKVOe_-ASholtLy5pHV6omrZT-x5_qcKlyMwEUkRT02RXr5WXKKGCgWbFhBCUqbN4dd13hJVCEH6_rfThFuWZTLQFTeI");'></div>
+<div class="absolute inset-0 bg-gradient-to-t from-primary/95 via-primary/60 to-primary/40 pointer-events-none"></div>
+
+<div class="relative z-10 flex flex-col items-start gap-space-md">
+
+<span class="inline-flex items-center gap-space-xs px-space-sm py-1 rounded-full bg-surface/15 backdrop-blur-md text-tertiary-fixed font-label-sm text-label-sm tracking-wide">
+<span class="inline-block w-1.5 h-1.5 rounded-full bg-amber-signal"></span>
+          ระบบบริการจองตั๋วรถไฟยุคใหม่
+        </span>
+
+<div class="space-y-space-sm pt-space-xs">
+<div class="flex items-center gap-space-xs text-secondary-fixed font-headline-sm text-headline-sm tracking-tight">
+<span class="">🚆</span>
+<span class="">RailSpeed</span>
+</div>
+<h2 class="font-headline-lg text-headline-lg text-on-primary tracking-tight leading-snug">
+            เริ่มต้นการเดินทาง<br/>ที่ง่ายกว่า กับ RailSpeed
+          </h2>
+<p class="font-body-md text-body-md text-primary-fixed-dim max-w-sm leading-relaxed">
+            สมัครสมาชิกเพื่อรับความสะดวกสบายในการจองตั๋ว บันทึกประวัติการเดินทาง และจัดการข้อมูลผู้โดยสารได้ตลอด 24 ชั่วโมง
+          </p>
+</div>
+</div>
+
+<div class="relative z-10 flex flex-col gap-space-sm pt-space-lg">
+
+<div class="flex items-start gap-space-sm p-space-sm rounded-lg bg-surface/10 backdrop-blur-md text-on-primary transition-all duration-200 hover:bg-surface/15">
+<div class="w-10 h-10 rounded-lg bg-surface/20 flex items-center justify-center shrink-0 text-amber-signal">
+<span class="material-symbols-outlined text-[20px]">badge</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-md text-label-md text-on-primary truncate">บันทึกข้อมูลผู้โดยสารรวดเร็ว</span>
+<span class="font-caption text-caption text-primary-fixed-dim">ไม่ต้องกรอกข้อมูลซ้ำซ้อนในทุกการเดินทาง</span>
+</div>
+</div>
+
+<div class="flex items-start gap-space-sm p-space-sm rounded-lg bg-surface/10 backdrop-blur-md text-on-primary transition-all duration-200 hover:bg-surface/15">
+<div class="w-10 h-10 rounded-lg bg-surface/20 flex items-center justify-center shrink-0 text-secondary-container">
+<span class="material-symbols-outlined text-[20px]">confirmation_number</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-md text-label-md text-on-primary truncate">จัดการตั๋ว e-Ticket สะดวก</span>
+<span class="font-caption text-caption text-primary-fixed-dim">ดูและแสดงตั๋วผ่านมือถือได้ทันทีทุกเส้นทาง</span>
+</div>
+</div>
+</div>
+</div>
+
+<div class="flex flex-col justify-center p-space-xl md:p-12 bg-surface text-ink">
+<div class="max-w-md w-full mx-auto flex flex-col gap-space-lg">
+
+<div class="flex flex-col items-start gap-space-xs">
+<span class="inline-flex items-center gap-space-xs px-space-sm py-1 rounded-full bg-secondary-fixed text-on-secondary-fixed-variant font-label-sm text-label-sm">
+<span class="inline-block w-1.5 h-1.5 rounded-full bg-coach-seat-first"></span>
+            สมัครสมาชิก RAILSPEED
+          </span>
+<h1 class="font-headline-md text-headline-md text-ink tracking-tight mt-space-xs">
+            สมัครสมาชิก
+          </h1>
+<p class="font-body-md text-body-md text-slate">
+            สร้างบัญชีผู้ใช้ใหม่เพื่อเริ่มต้นใช้งาน RailSpeed
+          </p>
+</div>
+
+<form action="{% url 'register' %}" class="flex flex-col gap-space-md" method="post">{% csrf_token %}<input type="hidden" name="next" value="{{ request.GET.next }}">
+
+<div class="flex flex-col gap-1.5">
+<label class="font-label-md text-label-md text-ink" for="reg-fullname">
+              ชื่อ-นามสกุล
+            </label>
+<div class="relative flex items-center">
+<input class="w-full h-[44px] px-space-md rounded-lg bg-surface text-ink font-body-md text-body-md shadow-sm outline-none transition-shadow focus:shadow-[0_0_0_2px_#1b4f9c] placeholder:text-slate/60" id="reg-fullname" name="full_name" placeholder="เช่น สมชาย ใจดี" required="" type="text" value="{{ data.full_name|default:"" }}"/>
+</div>
+{% if errors.full_name %}<p class="text-danger text-caption mt-1">{{ errors.full_name }}</p>{% endif %}</div>
+
+<div class="flex flex-col gap-1.5">
+<label class="font-label-md text-label-md text-ink" for="reg-email">
+              อีเมล
+            </label>
+<div class="relative flex items-center">
+<input class="w-full h-[44px] px-space-md rounded-lg bg-surface text-ink font-body-md text-body-md shadow-sm outline-none transition-shadow focus:shadow-[0_0_0_2px_#1b4f9c] placeholder:text-slate/60" id="reg-email" name="email" placeholder="example@email.com" required="" type="email" value="{{ data.email|default:"" }}"/>
+</div>
+{% if errors.email %}<p class="text-danger text-caption mt-1">{{ errors.email }}</p>{% endif %}</div>
+
+<div class="flex flex-col gap-1.5">
+<label class="font-label-md text-label-md text-ink" for="reg-phone">
+              เบอร์โทร
+            </label>
+<div class="relative flex items-center">
+<input class="w-full h-[44px] px-space-md rounded-lg bg-surface text-ink font-body-md text-body-md shadow-sm outline-none transition-shadow focus:shadow-[0_0_0_2px_#1b4f9c] placeholder:text-slate/60" id="reg-phone" name="phone" pattern="[0-9]{9,10}" placeholder="08X-XXX-XXXX" required="" type="tel" value="{{ data.phone|default:"" }}"/>
+</div>
+{% if errors.phone %}<p class="text-danger text-caption mt-1">{{ errors.phone }}</p>{% endif %}</div>
+
+<div class="flex flex-col gap-1.5">
+<label class="font-label-md text-label-md text-ink" for="reg-password">
+              รหัสผ่าน
+            </label>
+<div class="relative flex items-center">
+<input class="w-full h-[44px] pl-space-md pr-11 rounded-lg bg-surface text-ink font-body-md text-body-md shadow-sm outline-none transition-shadow focus:shadow-[0_0_0_2px_#1b4f9c] placeholder:text-slate/60" id="reg-password" minlength="8" name="password" placeholder="••••••••" required="" type="password"/>
+<button aria-label="แสดงหรือซ่อนรหัสผ่าน" class="absolute right-0 h-[44px] w-11 flex items-center justify-center text-slate hover:text-ink transition-colors focus:outline-none" id="password-toggle-btn" type="button">
+<span class="material-symbols-outlined text-[20px]" id="password-toggle-icon">visibility</span>
+</button>
+</div>
+{% if errors.password %}<p class="text-danger text-caption mt-1">{{ errors.password }}</p>{% endif %}</div>
+
+<div class="pt-space-xs">
+<button class="w-full h-[44px] flex items-center justify-center gap-space-xs rounded-lg bg-primary-container text-on-primary font-label-md text-label-md transition-all duration-200 hover:bg-coach-seat-first active:scale-[0.99] shadow-md shadow-primary-container/15 w-full" type="submit">
+<span class="">สมัครสมาชิก</span>
+<span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</button>
+</div>
+</form>
+
+<div class="text-center pt-space-xs">
+<p class="font-body-md text-body-md text-slate">
+            มีบัญชีแล้ว? 
+            <a class="text-coach-seat-first font-label-md text-label-md hover:underline underline-offset-4 ml-1 transition-colors" href="{% url 'login' %}">
+              เข้าสู่ระบบ
+            </a>
+</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+{% endblock %}
+{% block scripts %}
+<script>
+  (function() {
+    const toggleBtn = document.getElementById('password-toggle-btn');
+    const pwdInput = document.getElementById('reg-password');
+    const toggleIcon = document.getElementById('password-toggle-icon');
+
+    if (toggleBtn && pwdInput && toggleIcon) {
+      toggleBtn.addEventListener('click', function() {
+        const isPassword = pwdInput.getAttribute('type') === 'password';
+        pwdInput.setAttribute('type', isPassword ? 'text' : 'password');
+        toggleIcon.textContent = isPassword ? 'visibility_off' : 'visibility';
+      });
+    }
+  })();
+</script>
+{% endblock %}

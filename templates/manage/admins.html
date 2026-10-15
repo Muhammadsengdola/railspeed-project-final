@@ -1,0 +1,31 @@
+{% extends "manage/base.html" %}{% load rs %}
+{% block title %}แอดมิน{% endblock %}{% block heading %}รายการผู้ดูแลระบบ{% endblock %}
+{% block content %}
+<div class="flex flex-col sm:flex-row gap-space-sm">
+  {% include "manage/_search.html" with placeholder="ค้นหาชื่อ หรืออีเมล..." %}
+  <a class="h-11 px-space-lg rounded-lg bg-primary-container hover:bg-primary text-on-primary font-label-md flex items-center justify-center gap-1" href="?new=1"><span class="material-symbols-outlined text-[20px]">add</span>เพิ่มผู้ดูแล</a>
+</div>
+<div class="bg-surface rounded-xl border border-line shadow-sm overflow-x-auto">
+  <table class="w-full text-left whitespace-nowrap">
+    <thead class="bg-surface-container-low"><tr class="text-slate font-label-sm text-label-sm"><th class="px-space-md py-3">ชื่อ</th><th class="px-space-md py-3">อีเมล</th><th class="px-space-md py-3">เพิ่มเมื่อ</th><th class="px-space-md py-3 text-right">การจัดการ</th></tr></thead>
+    <tbody>{% for a in admins %}
+      <tr class="border-t border-line/70"><td class="px-space-md py-3 font-label-md text-ink">{{ a.get_full_name }}{% if a == user %} <span class="text-caption text-slate">(คุณ)</span>{% endif %}</td><td class="px-space-md py-3 text-ink">{{ a.email }}</td><td class="px-space-md py-3 text-slate">{{ a.date_joined|thdate }}</td>
+        <td class="px-space-md py-3 text-right">{% if a != user %}<form method="post" action="{% url 'manage_admin_delete' a.id %}" class="inline">{% csrf_token %}
+          <button class="h-9 px-3 rounded-lg border border-danger/40 text-danger font-label-sm text-label-sm hover:bg-danger/10" type="submit" data-confirm="ยืนยันการลบผู้ดูแล {{ a.get_full_name }}?">ลบ</button></form>{% endif %}</td></tr>
+    {% endfor %}</tbody>
+  </table>
+</div>
+{% if form %}
+<div class="fixed inset-0 z-[80] bg-ink/60 flex items-center justify-center p-space-md">
+  <form method="post" class="bg-surface rounded-2xl shadow-2xl w-full max-w-md flex flex-col overflow-hidden" novalidate>{% csrf_token %}
+    <div class="px-space-lg py-space-md border-b border-line flex items-center justify-between"><p class="font-headline-sm text-headline-sm text-ink">เพิ่มผู้ดูแลระบบ</p>
+      <a class="w-9 h-9 rounded-full hover:bg-mist flex items-center justify-center" href="{% url 'manage_admins' %}"><span class="material-symbols-outlined">close</span></a></div>
+    <div class="p-space-lg flex flex-col gap-space-md">{% for f in form %}{% include "manage/_field.html" %}{% endfor %}</div>
+    <div class="px-space-lg py-space-md border-t border-line flex justify-end gap-2">
+      <a class="h-11 px-space-lg rounded-lg border border-line text-ink font-label-md flex items-center hover:bg-mist" href="{% url 'manage_admins' %}">ยกเลิก</a>
+      <button class="h-11 px-space-lg rounded-lg bg-primary-container hover:bg-primary text-on-primary font-label-md" type="submit">บันทึก</button></div>
+  </form>
+</div>
+{% endif %}
+{% endblock %}
+{% block scripts %}<script>document.querySelectorAll('form input:not([type=hidden])').forEach(el => { if (!el.className) el.className = 'h-11 px-3 rounded-lg bg-surface-container-low text-ink border border-line w-full'; });</script>{% endblock %}

@@ -1,0 +1,31 @@
+{% load rs %}{% with s=booking.schedule %}
+<div class="flex items-center gap-space-sm pb-space-sm border-b border-line">
+  <span class="material-symbols-outlined text-secondary">confirmation_number</span>
+  <h2 class="font-headline-sm text-headline-sm text-ink font-bold">สรุปการจอง</h2>
+  <span class="ml-auto font-label-sm text-label-sm text-slate">{{ booking.code }}</span>
+</div>
+<div class="bg-surface-container-low p-space-md rounded-xl flex flex-col gap-space-xs">
+  <span class="font-label-sm text-label-sm text-secondary font-bold">{{ s.train.number }} {{ s.train.train_type }}</span>
+  <div class="flex items-center justify-between text-ink font-label-md text-label-md"><span>{{ s.origin.name }}</span><span class="material-symbols-outlined text-[16px] text-slate">trending_flat</span><span>{{ s.destination.name }}</span></div>
+  <div class="flex items-center gap-space-xs text-slate font-caption text-caption"><span class="material-symbols-outlined text-[16px]">schedule</span>{{ s.date|thdate }} · {{ s.depart_time|hm }} – {{ s.arrive_time|hm }}{% if s.overnight %} (+1 วัน){% endif %}</div>
+</div>
+<div class="flex flex-col gap-space-xs">
+  <span class="font-caption text-caption text-slate">ที่นั่งที่เลือก ({{ seats|length }} ที่นั่ง)</span>
+  {% for bs in seats %}
+  <div class="flex items-center justify-between p-space-sm rounded-lg bg-mist border border-line">
+    <span class="font-label-md text-label-md text-ink">ตู้ {{ bs.seat.carriage.number }} ที่นั่ง {{ bs.seat.label }} <span class="text-slate font-normal">({{ bs.seat.carriage.car_type.name }})</span></span>
+    <span class="font-label-md text-label-md font-bold text-secondary">{{ bs.price|baht }}</span>
+  </div>
+  {% endfor %}
+</div>
+<div class="flex items-baseline justify-between border-t border-line pt-space-md">
+  <span class="font-label-md text-label-md text-ink">ยอดรวมทั้งหมด</span>
+  <span class="font-headline-md text-headline-md text-amber-signal font-bold">{{ booking.total|baht }}</span>
+</div>
+{% if booking.status == 'held' %}
+<div class="flex items-center gap-2 px-3 py-2 rounded-lg bg-warning-bg border border-amber-signal/30 text-ink font-label-sm text-label-sm">
+  <span class="material-symbols-outlined text-[18px] text-amber-signal">timer</span>
+  <span>รักษาที่นั่งไว้อีก <b data-countdown="{{ booking.seconds_left }}">--:--</b> นาที</span>
+</div>
+{% endif %}
+{% endwith %}

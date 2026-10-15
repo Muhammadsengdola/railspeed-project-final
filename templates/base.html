@@ -1,0 +1,135 @@
+{% load static rs %}<!DOCTYPE html>
+<html lang="th">
+<head>
+{% include "partials/head.html" %}
+<title>{% block title %}RailSpeed{% endblock %} · RailSpeed</title>
+{% block head %}{% endblock %}
+</head>
+<body class="bg-background font-body-md text-body-md text-on-surface antialiased min-h-screen flex flex-col">
+
+<header class="rs-header fixed top-0 w-full z-50 bg-surface/95 backdrop-blur-md shadow-sm border-b border-line">
+  <div class="h-16 max-w-[1200px] mx-auto px-4 md:px-6 flex items-center justify-between gap-4">
+    <a class="flex items-center gap-2 group shrink-0" href="{% url 'home' %}">
+      <span class="text-2xl transition-transform group-hover:scale-105">🚆</span>
+      <div class="flex flex-col">
+        <div class="flex items-center gap-1.5">
+          <span class="font-headline-sm text-headline-sm text-primary font-bold tracking-tight">RailSpeed</span>
+          <span class="px-1.5 py-0.5 rounded text-[10px] font-label-sm bg-primary-container text-amber-signal">e-Ticket</span>
+        </div>
+        <span class="text-[10px] text-slate font-label-sm leading-tight hidden lg:block">ระบบจองตั๋วรถไฟออนไลน์</span>
+      </div>
+    </a>
+
+    {% with p=request.resolver_match.url_name %}
+    <nav class="hidden md:flex items-center gap-2">
+      <a class="{% if p == 'home' or p == 'search' %}text-primary bg-mist shadow-sm{% else %}text-slate hover:text-ink hover:bg-mist{% endif %} font-label-md text-label-md px-3 py-2 rounded-lg transition-colors flex items-center gap-1.5" href="{% url 'home' %}">
+        <span class="material-symbols-outlined text-[18px]">search</span><span>ค้นหาเที่ยวรถ</span></a>
+      {% if user.is_authenticated %}
+      <a class="{% if p == 'my_bookings' or p == 'ticket' %}text-primary bg-mist shadow-sm{% else %}text-slate hover:text-ink hover:bg-mist{% endif %} font-label-md text-label-md px-3 py-2 rounded-lg transition-colors flex items-center gap-2" href="{% url 'my_bookings' %}">
+        <span class="material-symbols-outlined text-[18px] text-coach-seat-first">confirmation_number</span><span>การจองของฉัน</span>
+        {% if header_upcoming %}<span class="px-1.5 rounded-full text-[11px] font-bold bg-amber-signal text-ink">{{ header_upcoming }}</span>{% endif %}
+      </a>
+      {% endif %}
+      <a class="{% if p == 'contact' %}text-primary bg-mist shadow-sm{% else %}text-slate hover:text-ink hover:bg-mist{% endif %} font-label-md text-label-md px-3 py-2 rounded-lg transition-colors flex items-center gap-1.5" href="{% url 'contact' %}">
+        <span class="material-symbols-outlined text-[18px]">support_agent</span><span>ติดต่อเรา</span></a>
+    </nav>
+    {% endwith %}
+
+    <div class="flex items-center gap-2 shrink-0">
+      <div class="hidden sm:flex items-center border border-line rounded-lg p-0.5 bg-mist text-slate font-label-sm" title="ภาษา">
+        <button class="px-2.5 py-1 rounded bg-surface text-ink font-bold shadow-sm" type="button" aria-pressed="true">TH</button>
+        <button class="px-2 py-1 rounded hover:text-ink transition-colors" type="button" data-rs-lang="en">EN</button>
+      </div>
+      <button class="w-10 h-10 rounded-lg border border-line bg-surface hover:bg-mist text-slate hover:text-ink flex items-center justify-center transition-colors shadow-sm" title="สลับโหมดสว่าง/มืด" type="button" data-rs-theme-toggle>
+        <span class="material-symbols-outlined text-[20px] dark:hidden">light_mode</span>
+        <span class="material-symbols-outlined text-[20px] hidden dark:inline">dark_mode</span>
+      </button>
+
+      {% if user.is_authenticated %}
+      <div class="relative">
+        <button type="button" class="flex items-center gap-2 pl-1 pr-2.5 py-1 rounded-xl bg-mist hover:bg-surface-container transition-colors border border-line" data-rs-menu="user-menu">
+          <span class="w-8 h-8 rounded-full bg-coach-seat-first text-on-primary flex items-center justify-center font-bold text-[13px] shadow-sm">{{ user|initials }}</span>
+          <span class="hidden sm:flex flex-col text-left">
+            <span class="font-label-md text-label-md text-ink leading-tight">{{ user.get_full_name|default:user.username }}</span>
+            <span class="text-[10px] font-label-sm text-slate">{% if user.is_staff %}ผู้ดูแลระบบ{% else %}สมาชิก RailSpeed{% endif %}</span>
+          </span>
+          <span class="material-symbols-outlined text-[18px] text-slate">expand_more</span>
+        </button>
+        <div id="user-menu" class="hidden absolute right-0 mt-2 w-56 rounded-xl bg-surface border border-line shadow-lg py-2 z-50">
+          <a class="flex items-center gap-2 px-4 py-2.5 hover:bg-mist text-ink font-label-md text-label-md" href="{% url 'profile' %}"><span class="material-symbols-outlined text-[18px] text-slate">person</span>โปรไฟล์</a>
+          <a class="flex items-center gap-2 px-4 py-2.5 hover:bg-mist text-ink font-label-md text-label-md" href="{% url 'my_bookings' %}"><span class="material-symbols-outlined text-[18px] text-slate">confirmation_number</span>การจองของฉัน</a>
+          {% if user.is_staff %}<a class="flex items-center gap-2 px-4 py-2.5 hover:bg-mist text-ink font-label-md text-label-md" href="{% url 'manage_dashboard' %}"><span class="material-symbols-outlined text-[18px] text-slate">admin_panel_settings</span>ระบบแอดมิน</a>{% endif %}
+          <form method="post" action="{% url 'logout' %}">{% csrf_token %}
+            <button class="w-full flex items-center gap-2 px-4 py-2.5 hover:bg-mist text-danger font-label-md text-label-md" type="submit"><span class="material-symbols-outlined text-[18px]">logout</span>ออกจากระบบ</button>
+          </form>
+        </div>
+      </div>
+      {% else %}
+      <a class="hidden sm:flex h-10 px-4 items-center justify-center rounded-lg border border-line bg-surface text-ink font-label-md text-label-md hover:bg-mist transition-colors shadow-sm" href="{% url 'login' %}">
+        <span class="material-symbols-outlined text-[18px] mr-1 text-slate">person</span>เข้าสู่ระบบ</a>
+      <a class="hidden sm:flex h-10 px-4 items-center justify-center rounded-lg bg-primary text-on-primary font-label-md text-label-md hover:bg-primary-container transition-all shadow-sm gap-1" href="{% url 'register' %}">
+        สมัครสมาชิก<span class="material-symbols-outlined text-[16px] text-amber-signal">arrow_forward</span></a>
+      {% endif %}
+      <button type="button" class="md:hidden w-10 h-10 rounded-lg border border-line bg-surface text-ink flex items-center justify-center" data-rs-menu="mobile-menu" aria-label="เมนู">
+        <span class="material-symbols-outlined">menu</span>
+      </button>
+    </div>
+  </div>
+  <div id="mobile-menu" class="hidden md:hidden border-t border-line bg-surface px-4 py-3 flex flex-col gap-1">
+    <a class="px-3 py-2.5 rounded-lg hover:bg-mist text-ink font-label-md" href="{% url 'home' %}">ค้นหาเที่ยวรถ</a>
+    {% if user.is_authenticated %}<a class="px-3 py-2.5 rounded-lg hover:bg-mist text-ink font-label-md" href="{% url 'my_bookings' %}">การจองของฉัน</a>{% endif %}
+    <a class="px-3 py-2.5 rounded-lg hover:bg-mist text-ink font-label-md" href="{% url 'contact' %}">ติดต่อเรา</a>
+    {% if not user.is_authenticated %}
+    <a class="px-3 py-2.5 rounded-lg hover:bg-mist text-ink font-label-md" href="{% url 'login' %}">เข้าสู่ระบบ</a>
+    <a class="px-3 py-2.5 rounded-lg bg-primary text-on-primary font-label-md" href="{% url 'register' %}">สมัครสมาชิก</a>
+    {% endif %}
+    <div class="flex items-center gap-2 pt-2">
+      <span class="text-caption text-slate">ภาษา:</span>
+      <button class="px-2.5 py-1 rounded bg-mist text-ink font-bold" type="button">TH</button>
+      <button class="px-2 py-1 rounded text-slate" type="button" data-rs-lang="en">EN</button>
+    </div>
+  </div>
+</header>
+
+<main class="w-full pt-16 flex-1 {% block main_class %}bg-background{% endblock %}">
+  {% if messages %}
+  <div class="max-w-[1200px] mx-auto px-4 md:px-6 pt-6 flex flex-col gap-2" id="rs-messages">
+    {% for m in messages %}
+    <div class="flex items-start gap-2 p-3 rounded-xl border {% if m.tags == 'error' %}bg-danger/10 border-danger/30 text-danger{% elif m.tags == 'success' %}bg-success/10 border-success/30 text-success{% else %}bg-warning-bg border-amber-signal/40 text-ink{% endif %} font-label-md text-label-md">
+      <span class="material-symbols-outlined text-[20px]">{% if m.tags == 'error' %}error{% elif m.tags == 'success' %}check_circle{% else %}info{% endif %}</span>
+      <span class="flex-1">{{ m }}</span>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+  {% block content %}{% endblock %}
+</main>
+
+<footer class="rs-footer w-full bg-primary-container text-on-primary border-t border-primary-container/40 pt-12 pb-10">
+  <div class="max-w-[1200px] mx-auto px-4 md:px-6">
+    <div class="grid grid-cols-1 md:grid-cols-12 gap-8 pb-10 border-b border-white/10">
+      <div class="md:col-span-6 flex flex-col gap-2">
+        <div class="flex items-center gap-2"><span class="text-2xl">🚆</span><span class="font-headline-sm text-headline-sm font-bold tracking-tight">RailSpeed</span></div>
+        <p class="text-body-md text-primary-fixed-dim leading-relaxed max-w-lg">จองตั๋วรถไฟไทยออนไลน์ เลือกตู้และที่นั่งได้เอง ชำระผ่านพร้อมเพย์ และรับตั๋วอิเล็กทรอนิกส์</p>
+      </div>
+      <div class="md:col-span-3 flex flex-col gap-3">
+        <h4 class="font-label-md text-label-md flex items-center gap-2"><span class="w-1.5 h-3.5 bg-amber-signal rounded-full"></span>บริการ</h4>
+        <a class="text-primary-fixed-dim hover:text-white transition-colors" href="{% url 'home' %}">ค้นหาเที่ยวรถ</a>
+        <a class="text-primary-fixed-dim hover:text-white transition-colors" href="{% url 'my_bookings' %}">การจองของฉัน</a>
+      </div>
+      <div class="md:col-span-3 flex flex-col gap-3">
+        <h4 class="font-label-md text-label-md flex items-center gap-2"><span class="w-1.5 h-3.5 bg-amber-signal rounded-full"></span>ช่วยเหลือ</h4>
+        <a class="text-primary-fixed-dim hover:text-white transition-colors" href="{% url 'contact' %}">ติดต่อเรา / แจ้งปัญหา</a>
+        <button type="button" class="text-left text-primary-fixed-dim hover:text-white transition-colors" data-rs-chat-open>ถามผู้ช่วย AI</button>
+      </div>
+    </div>
+    <div class="pt-6 text-caption text-primary-fixed-dim">© 2026 RailSpeed สงวนลิขสิทธิ์</div>
+  </div>
+</footer>
+
+{% include "partials/chat.html" %}
+<div id="rs-toast" class="rs-toast fixed bottom-24 left-1/2 -translate-x-1/2 z-[70] px-4 py-2.5 rounded-lg bg-inverse-surface text-inverse-on-surface font-label-md text-label-md shadow-lg opacity-0 pointer-events-none"></div>
+<script src="{% static 'rs/app.js' %}"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,35 @@
+{% extends "manage/base.html" %}{% load rs %}
+{% block title %}ข้อความ{% endblock %}{% block heading %}ข้อความจากหน้าติดต่อเรา{% endblock %}
+{% block content %}
+<div class="flex">{% include "manage/_search.html" with placeholder="ค้นหาชื่อ อีเมล หรือข้อความ..." %}</div>
+<div class="bg-surface rounded-xl border border-line shadow-sm overflow-x-auto">
+  <table class="w-full text-left">
+    <thead class="bg-surface-container-low"><tr class="text-slate font-label-sm text-label-sm whitespace-nowrap"><th class="px-space-md py-3">จาก</th><th class="px-space-md py-3">หัวข้อ</th><th class="px-space-md py-3">ข้อความ</th><th class="px-space-md py-3">เวลา</th><th class="px-space-md py-3">สถานะ</th><th class="px-space-md py-3 text-right">การจัดการ</th></tr></thead>
+    <tbody>{% for m in items %}
+      <tr class="border-t border-line/70 {% if not m.is_read %}bg-warning-bg/40{% endif %}">
+        <td class="px-space-md py-3 whitespace-nowrap"><p class="font-label-md text-ink">{{ m.name }}</p><a class="text-caption text-secondary hover:underline" href="mailto:{{ m.email }}?subject={{ 'Re: '|add:m.subject|urlencode }}">{{ m.email }}</a></td>
+        <td class="px-space-md py-3 text-ink">{{ m.subject }}</td>
+        <td class="px-space-md py-3 text-slate max-w-[320px]"><p class="truncate">{{ m.message }}</p></td>
+        <td class="px-space-md py-3 text-slate whitespace-nowrap">{{ m.created_at|thdatetime }}</td>
+        <td class="px-space-md py-3 whitespace-nowrap">{% if m.is_read %}<span class="px-2.5 py-0.5 rounded-full text-label-sm bg-surface-container text-slate">อ่านแล้ว</span>{% else %}<span class="px-2.5 py-0.5 rounded-full text-label-sm bg-warning-bg text-ink border border-amber-signal/40">ยังไม่อ่าน</span>{% endif %}</td>
+        <td class="px-space-md py-3"><div class="flex justify-end gap-1 whitespace-nowrap">
+          <button type="button" class="h-9 px-3 rounded-lg border border-line text-ink font-label-sm text-label-sm hover:bg-mist" data-msg="{{ m.id }}">อ่านเพิ่มเติม</button>
+          <form method="post" action="{% url 'manage_message_read' m.id %}">{% csrf_token %}<input type="hidden" name="q" value="{{ q }}">{% if m.is_read %}<input type="hidden" name="toggle" value="1">{% endif %}
+            <button class="h-9 px-3 rounded-lg {% if m.is_read %}border border-line text-slate{% else %}bg-primary-container text-on-primary{% endif %} font-label-sm text-label-sm" type="submit">{% if m.is_read %}ทำเป็นยังไม่อ่าน{% else %}ทำเครื่องหมายอ่านแล้ว{% endif %}</button></form>
+        </div>
+        <template id="msg-{{ m.id }}"><p class="font-label-md text-ink">{{ m.subject }}</p><p class="text-caption text-slate mb-2">{{ m.name }} · {{ m.email }} · {{ m.created_at|thdatetime }}</p><p class="whitespace-pre-line text-ink">{{ m.message }}</p></template></td>
+      </tr>
+    {% empty %}<tr><td colspan="6" class="px-space-md py-10 text-center text-slate">ไม่มีข้อความ</td></tr>{% endfor %}</tbody>
+  </table>
+</div>
+<div id="msg-modal" class="hidden fixed inset-0 z-[80] bg-ink/60 items-center justify-center p-space-md" onclick="if(event.target===this)this.classList.add('hidden')">
+  <div class="bg-surface rounded-2xl shadow-2xl w-full max-w-lg p-space-lg flex flex-col gap-space-md"><div id="msg-body"></div>
+    <div class="flex justify-end"><button type="button" class="h-10 px-space-lg rounded-lg bg-primary-container text-on-primary font-label-md" onclick="document.getElementById('msg-modal').classList.add('hidden')">ปิด</button></div></div>
+</div>
+{% endblock %}
+{% block scripts %}<script>
+document.querySelectorAll('[data-msg]').forEach(b => b.addEventListener('click', () => {
+  const t = document.getElementById('msg-' + b.dataset.msg), m = document.getElementById('msg-modal');
+  document.getElementById('msg-body').innerHTML = t.innerHTML; m.classList.remove('hidden'); m.classList.add('flex');
+}));
+</script>{% endblock %}

@@ -1,0 +1,90 @@
+{% extends "base.html" %}{% load rs %}
+{% block title %}ข้อมูลผู้โดยสาร{% endblock %}
+{% block content %}
+<div class="max-w-[1200px] w-full mx-auto px-margin py-space-lg flex flex-col gap-space-lg">
+  {% include "partials/steps.html" with step=3 %}
+  <div class="bg-surface rounded-xl p-space-lg shadow-sm border border-line flex flex-col md:flex-row md:items-center justify-between gap-space-md -mt-space-lg">
+    <div class="flex flex-col gap-space-xs max-w-2xl">
+      <h1 class="font-headline-lg text-headline-lg text-ink font-bold tracking-tight">ข้อมูลผู้โดยสาร</h1>
+      <p class="font-body-md text-body-md text-slate">กรุณากรอกข้อมูลผู้โดยสารให้ตรงตามบัตรประชาชน เพื่อความสะดวกในการตรวจตั๋วบนขบวนรถ</p>
+    </div>
+    <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-warning-bg border border-amber-signal/30 text-ink">
+      <span class="material-symbols-outlined text-[18px] text-amber-signal">train</span>
+      <span class="font-label-md text-label-md">{{ booking.schedule.train.number }} · {{ booking.schedule.origin.name }} → {{ booking.schedule.destination.name }} · {{ booking.schedule.date|thdate }}</span>
+    </div>
+  </div>
+
+  <form method="post" class="grid grid-cols-1 lg:grid-cols-12 gap-space-lg items-start" novalidate>
+    {% csrf_token %}
+    <div class="lg:col-span-8 flex flex-col gap-space-lg">
+      {% for bs in seats %}
+      <div class="bg-surface rounded-xl shadow-sm border border-line p-space-lg flex flex-col gap-space-md" data-passenger="{{ forloop.counter }}">
+        <div class="flex items-center justify-between gap-space-sm">
+          <div class="flex items-center gap-space-sm">
+            <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary shrink-0"><span class="material-symbols-outlined text-[22px]">person</span></div>
+            <div class="flex flex-col">
+              <span class="font-label-md text-label-md text-ink">ผู้โดยสารคนที่ {{ forloop.counter }}</span>
+              <span class="font-caption text-caption text-{{ bs.seat.carriage.car_type.color }} font-medium">ที่นั่ง ตู้ {{ bs.seat.carriage.number }} {{ bs.seat.label }} · {{ bs.seat.carriage.car_type.name }} · {{ bs.seat.seat_note }}</span>
+            </div>
+          </div>
+          {% if forloop.first %}
+          <button class="h-10 px-space-md rounded-lg bg-surface-container-low hover:bg-surface-container transition-colors text-primary font-label-md text-label-md flex items-center gap-space-xs shadow-sm" id="fill-my-info" type="button"
+            data-name="{{ me.name }}" data-phone="{{ me.phone }}">
+            <span class="material-symbols-outlined text-[18px]">account_box</span><span>ใช้ข้อมูลของฉัน</span></button>
+          {% endif %}
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-space-md">
+          <div class="flex flex-col gap-space-xs md:col-span-2">
+            <label class="font-label-md text-label-md text-ink" for="name_{{ bs.id }}">ชื่อ-นามสกุล</label>
+            <input class="h-11 px-space-md rounded-lg bg-surface-container-low text-ink text-body-md focus:bg-surface focus:outline-none border border-transparent focus:border-line" id="name_{{ bs.id }}" name="name_{{ bs.id }}" placeholder="เช่น สมชาย ใจดี" type="text" value="{{ bs.passenger_name }}" required maxlength="150">
+          </div>
+          <div class="flex flex-col gap-space-xs">
+            <label class="font-label-md text-label-md text-ink" for="idcard_{{ bs.id }}">เลขบัตรประชาชน</label>
+            <input class="h-11 px-space-md rounded-lg bg-surface-container-low text-ink text-body-md focus:bg-surface focus:outline-none border border-transparent focus:border-line" id="idcard_{{ bs.id }}" name="idcard_{{ bs.id }}" placeholder="เลขประจำตัวประชาชน 13 หลัก" type="text" inputmode="numeric" value="{{ bs.id_card }}" required maxlength="17">
+          </div>
+          <div class="flex flex-col gap-space-xs">
+            <label class="font-label-md text-label-md text-ink" for="phone_{{ bs.id }}">เบอร์โทร</label>
+            <input class="h-11 px-space-md rounded-lg bg-surface-container-low text-ink text-body-md focus:bg-surface focus:outline-none border border-transparent focus:border-line" id="phone_{{ bs.id }}" name="phone_{{ bs.id }}" placeholder="เช่น 081-234-5678" type="tel" value="{{ bs.phone }}" required maxlength="20">
+          </div>
+        </div>
+        <div class="rs-err flex flex-col gap-1 text-danger text-caption" data-for="{{ bs.id }}"></div>
+        <div class="flex items-center gap-space-xs pt-space-xs text-slate"><span class="material-symbols-outlined text-[16px] text-amber-signal">info</span><span class="font-caption text-caption">ตรวจสอบชื่อ-นามสกุลให้ตรงตามบัตรประชาชนก่อนยืนยัน</span></div>
+      </div>
+      {% endfor %}
+    </div>
+    <div class="lg:col-span-4 lg:sticky lg:top-24 flex flex-col gap-space-md">
+      <div class="bg-surface rounded-xl shadow-md border border-line p-space-lg flex flex-col gap-space-md">
+        {% include "partials/booking_summary.html" %}
+        <div class="flex flex-col gap-space-sm pt-space-sm">
+          <button class="w-full h-12 rounded-lg bg-primary-container hover:bg-primary text-on-primary font-label-md text-label-md font-bold shadow-md flex items-center justify-center gap-space-xs" type="submit">
+            ไปชำระเงิน<span class="material-symbols-outlined text-[18px]">arrow_forward</span></button>
+          <a class="w-full h-11 rounded-lg bg-surface border border-line text-ink hover:bg-mist font-label-md text-label-md flex items-center justify-center gap-space-xs" href="{% url 'seats' booking.schedule_id %}">
+            <span class="material-symbols-outlined text-[18px]">arrow_back</span>ย้อนกลับ (เลือกที่นั่งใหม่)</a>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+{{ errors|json_script:"rs-errors" }}
+{% endblock %}
+{% block scripts %}
+{% include "partials/countdown.html" %}
+<script>
+(function () {
+  const errs = JSON.parse(document.getElementById('rs-errors').textContent || '{}');
+  Object.entries(errs).forEach(([k, msg]) => {
+    const input = document.getElementById(k); if (!input) return;
+    input.classList.add('border-danger'); input.classList.remove('border-transparent');
+    const box = document.querySelector(`.rs-err[data-for="${k.split('_')[1]}"]`);
+    if (box) { const p = document.createElement('p'); p.textContent = msg; box.appendChild(p); }
+  });
+  const fill = document.getElementById('fill-my-info');
+  if (fill) fill.addEventListener('click', () => {
+    const card = document.querySelector('[data-passenger="1"]');
+    const [name, idc, phone] = card.querySelectorAll('input');
+    name.value = fill.dataset.name; phone.value = fill.dataset.phone; idc.focus();
+    rsToast('ใส่ชื่อและเบอร์โทรจากโปรไฟล์แล้ว กรอกเลขบัตรประชาชนต่อได้เลย');
+  });
+})();
+</script>
+{% endblock %}

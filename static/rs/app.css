@@ -1,0 +1,5 @@
+/* RailSpeed small extras on top of Tailwind */
+body{ -webkit-font-smoothing: antialiased; }
+.rs-toast{ transition: opacity .3s, transform .3s; }
+.seat-btn[disabled]{ cursor:not-allowed; }
+@media print{ header.rs-header, footer.rs-footer, #rs-chat, .no-print{ display:none !important; } main{ padding-top:0 !important; } }

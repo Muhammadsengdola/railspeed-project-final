@@ -1,0 +1,60 @@
+{% load static rs %}<!DOCTYPE html>
+<html lang="th">
+<head>
+{% include "partials/head.html" %}
+<title>{% block title %}แอดมิน{% endblock %} · RailSpeed แอดมิน</title>
+</head>
+<body class="bg-mist font-body-md text-body-md text-on-surface antialiased min-h-screen">
+{% with p=request.resolver_match.url_name k=request.resolver_match.kwargs.kind %}
+<aside id="adm-side" class="fixed left-0 top-0 bottom-0 w-60 bg-primary-container z-50 flex flex-col justify-between select-none -translate-x-full lg:translate-x-0 transition-transform">
+  <div class="flex flex-col overflow-y-auto">
+    <div class="h-16 px-space-md flex items-center gap-space-sm bg-primary">
+      <span class="material-symbols-outlined text-amber-signal">train</span>
+      <span class="font-headline-sm text-headline-sm text-on-primary font-bold tracking-tight">RailSpeed</span>
+      <span class="font-label-sm text-label-sm text-on-primary-container">แอดมิน</span>
+    </div>
+    <nav class="flex flex-col gap-1 p-space-sm">
+      <a class="flex items-center gap-space-sm px-space-md h-11 rounded-lg font-label-md text-label-md transition-colors {% if p == 'manage_dashboard' %}bg-primary text-on-primary font-bold{% else %}text-on-primary-container hover:bg-primary hover:text-on-primary{% endif %}" href="{% url 'manage_dashboard' %}"><span class="material-symbols-outlined text-[20px]">dashboard</span>แดชบอร์ด</a>
+      <a class="flex items-center gap-space-sm px-space-md h-11 rounded-lg font-label-md text-label-md transition-colors {% if p == 'manage_bookings' %}bg-primary text-on-primary font-bold{% else %}text-on-primary-container hover:bg-primary hover:text-on-primary{% endif %}" href="{% url 'manage_bookings' %}"><span class="material-symbols-outlined text-[20px]">confirmation_number</span>การจอง{% if nav_pending %}<span class="ml-auto px-1.5 rounded-full text-[11px] font-bold bg-amber-signal text-ink">{{ nav_pending }}</span>{% endif %}</a>
+      <a class="flex items-center gap-space-sm px-space-md h-11 rounded-lg font-label-md text-label-md transition-colors {% if p == 'manage_crud' and k == 'stations' %}bg-primary text-on-primary font-bold{% else %}text-on-primary-container hover:bg-primary hover:text-on-primary{% endif %}" href="{% url 'manage_crud' 'stations' %}"><span class="material-symbols-outlined text-[20px]">pin_drop</span>สถานี</a>
+      <a class="flex items-center gap-space-sm px-space-md h-11 rounded-lg font-label-md text-label-md transition-colors {% if p == 'manage_crud' and k == 'trains' or p == 'manage_train_cars' %}bg-primary text-on-primary font-bold{% else %}text-on-primary-container hover:bg-primary hover:text-on-primary{% endif %}" href="{% url 'manage_crud' 'trains' %}"><span class="material-symbols-outlined text-[20px]">directions_railway</span>ขบวนรถ</a>
+      <a class="flex items-center gap-space-sm px-space-md h-11 rounded-lg font-label-md text-label-md transition-colors {% if p == 'manage_crud' and k == 'schedules' %}bg-primary text-on-primary font-bold{% else %}text-on-primary-container hover:bg-primary hover:text-on-primary{% endif %}" href="{% url 'manage_crud' 'schedules' %}"><span class="material-symbols-outlined text-[20px]">calendar_month</span>รอบเดินทาง</a>
+      <a class="flex items-center gap-space-sm px-space-md h-11 rounded-lg font-label-md text-label-md transition-colors {% if p == 'manage_crud' and k == 'classes' %}bg-primary text-on-primary font-bold{% else %}text-on-primary-container hover:bg-primary hover:text-on-primary{% endif %}" href="{% url 'manage_crud' 'classes' %}"><span class="material-symbols-outlined text-[20px]">airline_seat_recline_extra</span>ประเภทตู้/ราคา</a>
+      <a class="flex items-center gap-space-sm px-space-md h-11 rounded-lg font-label-md text-label-md transition-colors {% if p == 'manage_users' %}bg-primary text-on-primary font-bold{% else %}text-on-primary-container hover:bg-primary hover:text-on-primary{% endif %}" href="{% url 'manage_users' %}"><span class="material-symbols-outlined text-[20px]">group</span>ผู้ใช้</a>
+      <a class="flex items-center gap-space-sm px-space-md h-11 rounded-lg font-label-md text-label-md transition-colors {% if p == 'manage_admins' %}bg-primary text-on-primary font-bold{% else %}text-on-primary-container hover:bg-primary hover:text-on-primary{% endif %}" href="{% url 'manage_admins' %}"><span class="material-symbols-outlined text-[20px]">admin_panel_settings</span>แอดมิน</a>
+      <a class="flex items-center gap-space-sm px-space-md h-11 rounded-lg font-label-md text-label-md transition-colors {% if p == 'manage_messages' %}bg-primary text-on-primary font-bold{% else %}text-on-primary-container hover:bg-primary hover:text-on-primary{% endif %}" href="{% url 'manage_messages' %}"><span class="material-symbols-outlined text-[20px]">chat</span>ข้อความ{% if nav_unread %}<span class="ml-auto px-1.5 rounded-full text-[11px] font-bold bg-amber-signal text-ink">{{ nav_unread }}</span>{% endif %}</a>
+    </nav>
+  </div>
+  <div class="p-space-sm flex flex-col gap-1">
+    <a class="flex items-center gap-space-sm px-space-md h-11 rounded-lg text-on-primary-container hover:bg-primary hover:text-on-primary font-label-md text-label-md" href="{% url 'home' %}"><span class="material-symbols-outlined text-[20px]">open_in_new</span>ไปฝั่งผู้ใช้</a>
+    <form method="post" action="{% url 'manage_logout' %}">{% csrf_token %}
+      <button class="w-full flex items-center gap-space-sm px-space-md h-11 rounded-lg text-on-primary-container hover:bg-danger hover:text-white font-label-md text-label-md" type="submit"><span class="material-symbols-outlined text-[20px]">logout</span>ออกจากระบบ</button></form>
+  </div>
+</aside>
+{% endwith %}
+<header class="fixed top-0 left-0 lg:left-60 right-0 h-16 bg-surface/90 backdrop-blur-md border-b border-line z-40 px-space-lg flex items-center justify-between gap-space-md">
+  <div class="flex items-center gap-space-sm">
+    <button class="lg:hidden w-10 h-10 rounded-lg border border-line flex items-center justify-center" type="button" onclick="document.getElementById('adm-side').classList.toggle('-translate-x-full')"><span class="material-symbols-outlined">menu</span></button>
+    <h1 class="font-headline-sm text-headline-sm text-ink">{% block heading %}{% endblock %}</h1>
+  </div>
+  <div class="flex items-center gap-space-sm">
+    <button class="w-10 h-10 rounded-lg border border-line bg-surface hover:bg-mist text-slate flex items-center justify-center" title="สลับโหมดสว่าง/มืด" type="button" data-rs-theme-toggle>
+      <span class="material-symbols-outlined text-[20px] dark:hidden">light_mode</span><span class="material-symbols-outlined text-[20px] hidden dark:inline">dark_mode</span></button>
+    <span class="hidden sm:inline font-label-md text-label-md text-on-surface">{{ user.get_full_name|default:user.email }}</span>
+    <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div>
+  </div>
+</header>
+<main class="lg:ml-60 pt-16 min-h-screen">
+  <div class="p-space-lg flex flex-col gap-space-lg max-w-[1400px]">
+    {% if messages %}{% for m in messages %}
+    <div class="flex items-start gap-2 p-3 rounded-xl border {% if m.tags == 'error' %}bg-danger/10 border-danger/30 text-danger{% elif m.tags == 'success' %}bg-success/10 border-success/30 text-success{% else %}bg-warning-bg border-amber-signal/40 text-ink{% endif %} font-label-md text-label-md">
+      <span class="material-symbols-outlined text-[20px]">{% if m.tags == 'error' %}error{% else %}check_circle{% endif %}</span><span>{{ m }}</span></div>
+    {% endfor %}{% endif %}
+    {% block content %}{% endblock %}
+  </div>
+</main>
+<div id="rs-toast" class="rs-toast fixed bottom-6 left-1/2 -translate-x-1/2 z-[70] px-4 py-2.5 rounded-lg bg-inverse-surface text-inverse-on-surface font-label-md shadow-lg opacity-0 pointer-events-none"></div>
+<script src="{% static 'rs/app.js' %}"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

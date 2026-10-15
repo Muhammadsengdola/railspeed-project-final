@@ -1,0 +1,123 @@
+{% extends "base.html" %}{% load rs static %}
+{% block title %}ผลค้นหาเที่ยวรถ{% endblock %}
+{% block content %}
+<div class="max-w-[1200px] mx-auto px-margin py-space-lg"><div class="flex flex-col w-full">
+
+{% include "partials/steps.html" with step=1 %}
+
+<div class="relative overflow-hidden w-full bg-primary-container text-on-primary rounded-xl p-space-lg shadow-[0_8px_24px_-4px_rgba(20,48,77,0.12),0_2px_8px_-2px_rgba(20,48,77,0.06)] mb-space-lg">
+
+<div class="absolute inset-0 opacity-10 pointer-events-none">
+<svg class="w-full h-full" fill="none" preserveaspectratio="none" viewbox="0 0 1200 120">
+<path d="M-100,60 L1300,60" stroke="#80abfe" stroke-dasharray="8 12" stroke-width="2"></path>
+<path d="M-100,75 L1300,75" stroke="#ffffff" stroke-width="1.5"></path>
+<circle cx="280" cy="60" fill="#f5a524" r="18"></circle>
+<circle cx="850" cy="60" fill="#80abfe" r="18"></circle>
+</svg>
+</div>
+<div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-space-md">
+<div class="flex items-center gap-space-md min-w-0">
+<div class="w-12 h-12 rounded-xl bg-surface/10 backdrop-blur-md flex items-center justify-center text-amber-signal shrink-0">
+<span class="material-symbols-outlined text-[28px]">train</span>
+</div>
+<div class="min-w-0">
+<div class="flex items-center gap-space-xs text-on-primary-container font-label-sm text-label-sm">
+<span class="">{% if rows %}พบ {{ rows|length }} เที่ยว{% else %}ไม่พบเที่ยวรถ{% endif %} · {{ pax }} ผู้โดยสาร</span>
+<span class="inline-block w-1.5 h-1.5 rounded-full bg-amber-signal"></span>
+</div>
+<h1 class="font-headline-sm text-headline-sm text-on-primary font-bold truncate tracking-tight">{{ origin.name }} <span class="text-amber-signal font-normal">→</span> {{ dest.name }}</h1>
+</div>
+</div>
+<div class="flex items-center flex-wrap gap-space-md bg-surface/10 backdrop-blur-md px-space-md py-space-sm rounded-lg self-start md:self-auto"><div class="flex items-center gap-space-xs text-on-primary font-label-md text-label-md">
+<span class="material-symbols-outlined text-amber-signal text-[20px]">calendar_today</span>
+<span class="">{{ day|thday }} {{ day|thdate }}</span>
+</div></div>
+</div>
+</div>
+
+<div class="w-full bg-surface rounded-xl shadow-[0_2px_8px_-2px_rgba(20,32,46,0.06),0_1px_4px_-1px_rgba(20,32,46,0.04)] p-space-md mb-space-lg flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-space-md">
+
+<div class="flex items-center justify-between sm:justify-start gap-space-sm">
+<a {% if not prev_url %}aria-disabled="true" style="opacity:.4;pointer-events:none"{% endif %} aria-label="วันก่อนหน้า" class="h-[44px] px-space-md rounded-lg bg-surface-container-low hover:bg-surface-container text-ink font-label-md text-label-md flex items-center gap-space-xs transition-colors shrink-0 shadow-sm" href="{{ prev_url|default:"#" }}">
+<span class="material-symbols-outlined text-[20px] text-primary">chevron_left</span>
+<span class="">วันก่อนหน้า</span>
+</a>
+<div class="flex items-center gap-space-xs px-space-md py-space-xs bg-surface-container rounded-lg shrink-0">
+<span class="material-symbols-outlined text-[18px] text-primary">event</span>
+<span class="font-label-md text-label-md text-ink font-bold">{{ day|thdate }}</span>
+</div>
+<a aria-label="วันถัดไป" class="h-[44px] px-space-md rounded-lg bg-surface-container-low hover:bg-surface-container text-ink font-label-md text-label-md flex items-center gap-space-xs transition-colors shrink-0 shadow-sm" href="{{ next_url }}">
+<span class="">วันถัดไป</span>
+<span class="material-symbols-outlined text-[20px] text-primary">chevron_right</span>
+</a>
+</div>
+
+<div class="flex items-center justify-end gap-space-sm shrink-0">
+<label class="font-label-md text-label-md text-slate whitespace-nowrap" for="sortSelector">เรียงตาม</label>
+<div class="relative w-full sm:w-auto">
+<select class="h-[44px] w-full sm:w-[190px] appearance-none pl-space-md pr-10 rounded-lg bg-surface-container-low hover:bg-surface-container text-ink font-label-md text-label-md cursor-pointer transition-colors focus:outline-none focus:ring-2 focus:ring-secondary" id="sortSelector" onchange="location.href='{{ sort_base }}&amp;sort='+this.value"><option value="time" {% if sort == "time" %}selected{% endif %}>เวลาออก</option><option value="price" {% if sort == "price" %}selected{% endif %}>ราคา</option></select>
+<span class="pointer-events-none absolute right-space-sm top-1/2 -translate-y-1/2 material-symbols-outlined text-slate text-[20px]">
+          expand_more
+        </span>
+</div>
+</div>
+</div>
+
+<div class="flex flex-col gap-space-lg w-full">{% for r in rows %}{% with s=r.schedule %}
+<div class="w-full bg-surface rounded-xl shadow-[0_2px_8px_-2px_rgba(20,32,46,0.06),0_1px_4px_-1px_rgba(20,32,46,0.04)] hover:shadow-md transition-all p-space-lg {% if r.departed %}opacity-60{% endif %}">
+ <div class="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-space-lg">
+  <div class="flex items-center lg:flex-col lg:items-start justify-between lg:justify-center gap-space-xs lg:w-44 shrink-0 pb-space-sm lg:pb-0">
+   <div class="flex items-center gap-space-sm"><span class="w-3 h-3 rounded-full {% if r.bed_total %}bg-coach-sleeper-second{% else %}bg-secondary{% endif %} shrink-0"></span>
+    <span class="font-headline-sm text-headline-sm text-primary font-bold tracking-tight">{{ s.train.number }}</span></div>
+   <span class="inline-flex items-center px-space-sm py-0.5 rounded-full {% if s.train.train_type == 'ด่วนพิเศษ' %}bg-primary-container text-on-primary{% else %}bg-surface-container text-ink{% endif %} font-label-sm text-label-sm">{{ s.train.train_type }}</span>
+  </div>
+  <div class="flex-1 flex flex-col justify-center px-0 lg:px-space-md">
+   <div class="grid grid-cols-3 items-center">
+    <div class="flex flex-col items-start"><span class="font-headline-md text-headline-md text-ink font-bold leading-tight">{{ s.depart_time|hm }}</span><span class="font-body-md text-body-md text-slate truncate">{{ s.origin.name }}</span></div>
+    <div class="flex flex-col items-center justify-center px-space-xs">
+     <span class="font-caption text-caption text-slate font-medium mb-1">{{ s.duration_text }}</span>
+     <div class="w-full flex items-center relative py-1">
+      <div class="w-3 h-3 rounded-full bg-primary shrink-0 ring-4 ring-surface-container"></div>
+      <div class="flex-1 h-[2px] bg-slate/30 mx-1 relative"><div class="absolute inset-0 bg-primary/40"></div></div>
+      <div class="absolute left-1/2 -translate-x-1/2 -top-2 px-1 bg-surface text-primary"><span class="material-symbols-outlined text-[16px] leading-none">arrow_forward</span></div>
+      <div class="w-3 h-3 rounded-full bg-amber-signal shrink-0 ring-4 ring-warning-bg"></div>
+     </div>
+     {% if s.overnight %}<span class="font-caption text-caption text-coach-sleeper-second font-medium mt-1">รถไฟนอนขบวนกลางคืน</span>{% endif %}
+    </div>
+    <div class="flex flex-col items-end">
+     <div class="flex items-baseline gap-1"><span class="font-headline-md text-headline-md text-ink font-bold leading-tight">{{ s.arrive_time|hm }}</span>{% if s.overnight %}<span class="font-label-sm text-label-sm text-danger font-bold">+1 วัน</span>{% endif %}</div>
+     <span class="font-body-md text-body-md text-slate truncate">{{ s.destination.name }}</span>
+    </div>
+   </div>
+  </div>
+  <div class="flex items-center lg:flex-col lg:items-end justify-between lg:justify-center gap-space-md lg:w-52 shrink-0 pt-space-sm lg:pt-0">
+   <div class="text-left lg:text-right">
+    <span class="font-caption text-caption text-slate block">เริ่มต้น</span>
+    <span class="font-headline-md text-headline-md text-amber-signal font-bold">{{ r.min_price|baht }}</span>
+    <div class="flex flex-col gap-0.5 mt-1">
+     <div class="flex items-center gap-1 text-slate font-label-sm text-label-sm justify-start lg:justify-end"><span class="material-symbols-outlined text-[16px] text-success">airline_seat_recline_normal</span>
+      <span>{% if r.seat_total %}ที่นั่ง: ว่าง <strong class="text-ink font-bold">{{ r.seat_free }}</strong> / {{ r.seat_total }} ที่นั่ง{% else %}ไม่มีตู้นั่ง{% endif %}</span></div>
+     <div class="flex items-center gap-1 text-slate font-label-sm text-label-sm justify-start lg:justify-end"><span class="material-symbols-outlined text-[16px] {% if r.bed_total %}text-danger{% else %}text-slate{% endif %}">bed</span>
+      <span>{% if r.bed_total %}ตู้นอน: ว่าง <strong class="text-ink font-bold">{{ r.bed_free }}</strong> / {{ r.bed_total }} เตียง{% else %}ตู้นอน: ไม่มีตู้นอน{% endif %}</span></div>
+    </div>
+   </div>
+   {% if r.departed %}
+   <span class="h-[44px] px-space-lg rounded-lg bg-surface-container text-slate font-label-md text-label-md flex items-center justify-center shrink-0">ออกเดินทางแล้ว</span>
+   {% elif not r.free %}
+   <span class="h-[44px] px-space-lg rounded-lg bg-surface-container text-slate font-label-md text-label-md flex items-center justify-center shrink-0">เต็ม</span>
+   {% else %}
+   <a class="h-[44px] px-space-lg rounded-lg bg-primary-container hover:bg-primary text-on-primary font-label-md text-label-md flex items-center justify-center transition-all shadow-md shrink-0" href="{% url 'seats' s.id %}?pax={{ pax }}">เลือกเที่ยวนี้</a>
+   {% endif %}
+  </div>
+ </div>
+</div>
+{% endwith %}{% empty %}
+<div class="w-full bg-surface rounded-xl p-space-xl text-center flex flex-col items-center gap-space-sm">
+ <span class="material-symbols-outlined text-[48px] text-slate">train</span>
+ <p class="font-headline-sm text-headline-sm text-ink">ไม่พบเที่ยวรถในวันนี้</p>
+ <p class="text-slate">ลองเลือกวันถัดไป หรือเปลี่ยนสถานีต้นทาง/ปลายทาง</p>
+ <a class="mt-space-sm h-11 px-space-lg rounded-lg bg-primary-container text-on-primary font-label-md flex items-center" href="{% url 'home' %}">ค้นหาใหม่</a>
+</div>
+{% endfor %}</div>
+</div></div>
+{% endblock %}

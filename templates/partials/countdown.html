@@ -1,0 +1,11 @@
+<script>
+document.querySelectorAll('[data-countdown]').forEach(el => {
+  let left = parseInt(el.dataset.countdown, 10);
+  const tick = () => {
+    if (left <= 0) { el.textContent = '00:00'; rsToast('หมดเวลารักษาที่นั่งแล้ว กำลังพากลับไปเลือกที่นั่ง'); setTimeout(() => location.reload(), 1500); return; }
+    el.textContent = String(Math.floor(left / 60)).padStart(2, '0') + ':' + String(left % 60).padStart(2, '0');
+    left--; setTimeout(tick, 1000);
+  };
+  tick();
+});
+</script>

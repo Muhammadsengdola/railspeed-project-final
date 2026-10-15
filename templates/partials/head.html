@@ -1,0 +1,142 @@
+{% load static %}<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>
+/* apply saved theme before paint (dark / light) */
+(function(){try{var t=localStorage.getItem('rs-theme');if(t==='dark'||(!t&&window.matchMedia('(prefers-color-scheme: dark)').matches)){document.documentElement.classList.add('dark');}}catch(e){}})();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700&family=Noto+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>tailwind.config = {"darkMode": "class", "theme": {"extend": {"colors": {"amber-signal": "rgb(var(--c-amber-signal) / <alpha-value>)", "background": "rgb(var(--c-background) / <alpha-value>)", "coach-seat-first": "rgb(var(--c-coach-seat-first) / <alpha-value>)", "coach-seat-standard": "rgb(var(--c-coach-seat-standard) / <alpha-value>)", "coach-sleeper-first": "rgb(var(--c-coach-sleeper-first) / <alpha-value>)", "coach-sleeper-second": "rgb(var(--c-coach-sleeper-second) / <alpha-value>)", "danger": "rgb(var(--c-danger) / <alpha-value>)", "error": "rgb(var(--c-error) / <alpha-value>)", "error-container": "rgb(var(--c-error-container) / <alpha-value>)", "ink": "rgb(var(--c-ink) / <alpha-value>)", "inverse-on-surface": "rgb(var(--c-inverse-on-surface) / <alpha-value>)", "inverse-primary": "rgb(var(--c-inverse-primary) / <alpha-value>)", "inverse-surface": "rgb(var(--c-inverse-surface) / <alpha-value>)", "line": "rgb(var(--c-line) / <alpha-value>)", "mist": "rgb(var(--c-mist) / <alpha-value>)", "on-background": "rgb(var(--c-on-background) / <alpha-value>)", "on-error": "rgb(var(--c-on-error) / <alpha-value>)", "on-error-container": "rgb(var(--c-on-error-container) / <alpha-value>)", "on-primary": "rgb(var(--c-on-primary) / <alpha-value>)", "on-primary-container": "rgb(var(--c-on-primary-container) / <alpha-value>)", "on-primary-fixed": "rgb(var(--c-on-primary-fixed) / <alpha-value>)", "on-primary-fixed-variant": "rgb(var(--c-on-primary-fixed-variant) / <alpha-value>)", "on-secondary": "rgb(var(--c-on-secondary) / <alpha-value>)", "on-secondary-container": "rgb(var(--c-on-secondary-container) / <alpha-value>)", "on-secondary-fixed": "rgb(var(--c-on-secondary-fixed) / <alpha-value>)", "on-secondary-fixed-variant": "rgb(var(--c-on-secondary-fixed-variant) / <alpha-value>)", "on-surface": "rgb(var(--c-on-surface) / <alpha-value>)", "on-surface-variant": "rgb(var(--c-on-surface-variant) / <alpha-value>)", "on-tertiary": "rgb(var(--c-on-tertiary) / <alpha-value>)", "on-tertiary-container": "rgb(var(--c-on-tertiary-container) / <alpha-value>)", "on-tertiary-fixed": "rgb(var(--c-on-tertiary-fixed) / <alpha-value>)", "on-tertiary-fixed-variant": "rgb(var(--c-on-tertiary-fixed-variant) / <alpha-value>)", "outline": "rgb(var(--c-outline) / <alpha-value>)", "outline-variant": "rgb(var(--c-outline-variant) / <alpha-value>)", "primary": "rgb(var(--c-primary) / <alpha-value>)", "primary-container": "rgb(var(--c-primary-container) / <alpha-value>)", "primary-fixed": "rgb(var(--c-primary-fixed) / <alpha-value>)", "primary-fixed-dim": "rgb(var(--c-primary-fixed-dim) / <alpha-value>)", "secondary": "rgb(var(--c-secondary) / <alpha-value>)", "secondary-container": "rgb(var(--c-secondary-container) / <alpha-value>)", "secondary-fixed": "rgb(var(--c-secondary-fixed) / <alpha-value>)", "secondary-fixed-dim": "rgb(var(--c-secondary-fixed-dim) / <alpha-value>)", "slate": "rgb(var(--c-slate) / <alpha-value>)", "success": "rgb(var(--c-success) / <alpha-value>)", "surface": "rgb(var(--c-surface) / <alpha-value>)", "surface-bright": "rgb(var(--c-surface-bright) / <alpha-value>)", "surface-container": "rgb(var(--c-surface-container) / <alpha-value>)", "surface-container-high": "rgb(var(--c-surface-container-high) / <alpha-value>)", "surface-container-highest": "rgb(var(--c-surface-container-highest) / <alpha-value>)", "surface-container-low": "rgb(var(--c-surface-container-low) / <alpha-value>)", "surface-container-lowest": "rgb(var(--c-surface-container-lowest) / <alpha-value>)", "surface-dim": "rgb(var(--c-surface-dim) / <alpha-value>)", "surface-tint": "rgb(var(--c-surface-tint) / <alpha-value>)", "surface-variant": "rgb(var(--c-surface-variant) / <alpha-value>)", "tertiary": "rgb(var(--c-tertiary) / <alpha-value>)", "tertiary-container": "rgb(var(--c-tertiary-container) / <alpha-value>)", "tertiary-fixed": "rgb(var(--c-tertiary-fixed) / <alpha-value>)", "tertiary-fixed-dim": "rgb(var(--c-tertiary-fixed-dim) / <alpha-value>)", "warning": "rgb(var(--c-warning) / <alpha-value>)", "warning-bg": "rgb(var(--c-warning-bg) / <alpha-value>)"}, "borderRadius": {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"}, "spacing": {"space-xs": "0.25rem", "space-sm": "0.5rem", "space-md": "1rem", "space-lg": "1.5rem", "space-xl": "2rem", "gutter": "1.5rem", "margin": "1.5rem"}, "fontFamily": {"body-lg": ["Noto Sans Thai", "Sarabun", "Noto Sans", "sans-serif"], "headline-xl": ["Noto Sans Thai", "Sarabun", "Noto Sans", "sans-serif"], "label-sm": ["Noto Sans Thai", "Sarabun", "Noto Sans", "sans-serif"], "body-md": ["Noto Sans Thai", "Sarabun", "Noto Sans", "sans-serif"], "headline-xl-mobile": ["Noto Sans Thai", "Sarabun", "Noto Sans", "sans-serif"], "caption": ["Noto Sans Thai", "Sarabun", "Noto Sans", "sans-serif"], "headline-lg": ["Noto Sans Thai", "Sarabun", "Noto Sans", "sans-serif"], "headline-md": ["Noto Sans Thai", "Sarabun", "Noto Sans", "sans-serif"], "headline-sm": ["Noto Sans Thai", "Sarabun", "Noto Sans", "sans-serif"], "label-md": ["Noto Sans Thai", "Sarabun", "Noto Sans", "sans-serif"], "headline-lg-mobile": ["Noto Sans Thai", "Sarabun", "Noto Sans", "sans-serif"], "sans": ["Noto Sans Thai", "Sarabun", "Noto Sans", "sans-serif"]}, "fontSize": {"body-lg": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}], "headline-xl": ["44px", {"lineHeight": "1.4", "fontWeight": "700"}], "label-sm": ["12px", {"lineHeight": "1.5", "fontWeight": "600"}], "body-md": ["14px", {"lineHeight": "1.6", "fontWeight": "400"}], "headline-xl-mobile": ["32px", {"lineHeight": "1.4", "fontWeight": "700"}], "caption": ["13px", {"lineHeight": "1.5", "fontWeight": "400"}], "headline-lg": ["36px", {"lineHeight": "1.4", "fontWeight": "700"}], "headline-md": ["28px", {"lineHeight": "1.4", "fontWeight": "700"}], "headline-sm": ["20px", {"lineHeight": "1.5", "fontWeight": "600"}], "label-md": ["14px", {"lineHeight": "1.5", "fontWeight": "600"}], "headline-lg-mobile": ["28px", {"lineHeight": "1.4", "fontWeight": "700"}]}}}};</script>
+<style>
+:root{
+  --c-amber-signal: 245 165 36;
+  --c-background: 250 249 252;
+  --c-coach-seat-first: 27 79 156;
+  --c-coach-seat-standard: 59 130 160;
+  --c-coach-sleeper-first: 184 134 43;
+  --c-coach-sleeper-second: 107 79 138;
+  --c-danger: 200 55 45;
+  --c-error: 186 26 26;
+  --c-error-container: 255 218 214;
+  --c-ink: 20 32 46;
+  --c-inverse-on-surface: 241 240 243;
+  --c-inverse-primary: 174 201 237;
+  --c-inverse-surface: 47 48 51;
+  --c-line: 217 222 230;
+  --c-mist: 242 244 247;
+  --c-on-background: 26 28 30;
+  --c-on-error: 255 255 255;
+  --c-on-error-container: 147 0 10;
+  --c-on-primary: 255 255 255;
+  --c-on-primary-container: 126 152 186;
+  --c-on-primary-fixed: 0 28 55;
+  --c-on-primary-fixed-variant: 46 72 103;
+  --c-on-secondary: 255 255 255;
+  --c-on-secondary-container: 0 61 133;
+  --c-on-secondary-fixed: 0 26 65;
+  --c-on-secondary-fixed-variant: 6 68 145;
+  --c-on-surface: 26 28 30;
+  --c-on-surface-variant: 67 71 77;
+  --c-on-tertiary: 255 255 255;
+  --c-on-tertiary-container: 183 143 92;
+  --c-on-tertiary-fixed: 42 24 0;
+  --c-on-tertiary-fixed-variant: 95 65 21;
+  --c-outline: 116 119 126;
+  --c-outline-variant: 195 198 206;
+  --c-primary: 0 27 52;
+  --c-primary-container: 20 48 77;
+  --c-primary-fixed: 210 228 255;
+  --c-primary-fixed-dim: 174 201 237;
+  --c-secondary: 45 93 170;
+  --c-secondary-container: 128 171 254;
+  --c-secondary-fixed: 216 226 255;
+  --c-secondary-fixed-dim: 173 198 255;
+  --c-slate: 102 112 133;
+  --c-success: 46 139 87;
+  --c-surface: 255 255 255;
+  --c-surface-bright: 250 249 252;
+  --c-surface-container: 239 237 240;
+  --c-surface-container-high: 233 232 234;
+  --c-surface-container-highest: 227 226 229;
+  --c-surface-container-low: 244 243 246;
+  --c-surface-container-lowest: 255 255 255;
+  --c-surface-dim: 218 217 220;
+  --c-surface-tint: 71 96 128;
+  --c-surface-variant: 227 226 229;
+  --c-tertiary: 39 22 0;
+  --c-tertiary-container: 67 41 0;
+  --c-tertiary-fixed: 255 221 181;
+  --c-tertiary-fixed-dim: 235 191 135;
+  --c-warning: 245 165 36;
+  --c-warning-bg: 254 247 236;
+}
+html.dark{
+  --c-on-tertiary-fixed: 255 221 181;
+  --c-tertiary-fixed: 95 65 21;
+  --c-on-secondary-fixed: 216 226 255;
+  --c-secondary-fixed-dim: 173 198 255;
+  --c-secondary-fixed: 30 58 102;
+  --c-primary-fixed: 31 58 92;
+  --c-background: 14 20 28;
+  --c-coach-seat-first: 111 155 224;
+  --c-coach-seat-standard: 95 168 198;
+  --c-coach-sleeper-first: 214 166 74;
+  --c-coach-sleeper-second: 169 139 208;
+  --c-danger: 239 122 112;
+  --c-error: 255 180 171;
+  --c-error-container: 147 0 10;
+  --c-ink: 232 237 243;
+  --c-inverse-on-surface: 47 48 51;
+  --c-inverse-primary: 71 96 128;
+  --c-inverse-surface: 227 226 229;
+  --c-line: 43 55 70;
+  --c-mist: 16 24 35;
+  --c-on-background: 227 232 239;
+  --c-on-error: 105 0 5;
+  --c-on-error-container: 255 218 214;
+  --c-on-primary: 255 255 255;
+  --c-on-primary-container: 174 201 237;
+  --c-on-secondary: 0 46 105;
+  --c-on-secondary-container: 216 226 255;
+  --c-on-surface: 227 232 239;
+  --c-on-surface-variant: 184 194 207;
+  --c-on-tertiary: 67 41 0;
+  --c-on-tertiary-container: 255 221 181;
+  --c-outline: 138 148 163;
+  --c-outline-variant: 58 70 85;
+  --c-primary: 74 124 201;
+  --c-primary-container: 20 48 77;
+  --c-secondary: 173 198 255;
+  --c-secondary-container: 30 74 143;
+  --c-slate: 154 166 182;
+  --c-success: 76 194 131;
+  --c-surface: 21 29 40;
+  --c-surface-bright: 29 38 51;
+  --c-surface-container: 28 38 51;
+  --c-surface-container-high: 34 45 59;
+  --c-surface-container-highest: 41 53 68;
+  --c-surface-container-low: 23 32 44;
+  --c-surface-container-lowest: 11 16 24;
+  --c-surface-dim: 14 20 28;
+  --c-surface-tint: 174 201 237;
+  --c-surface-variant: 41 53 68;
+  --c-tertiary: 235 191 135;
+  --c-tertiary-container: 95 65 21;
+  --c-warning-bg: 58 46 23;
+  color-scheme: dark;
+}
+.material-symbols-outlined{font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24;line-height:1;}
+html.dark .bg-white{background-color: rgb(var(--c-surface)) !important;}
+html.dark .text-black{color: rgb(var(--c-ink)) !important;}
+html.dark img.rs-dim{filter:brightness(.85);}
+html.dark ::placeholder{color: rgb(var(--c-slate)) !important;}
+html.dark input, html.dark select, html.dark textarea{color-scheme: dark;}
+[x-cloak]{display:none!important}
+html.dark .text-primary-container{color: rgb(var(--c-primary-fixed-dim)) !important;}
+html.dark .bg-ink\/60{background-color: rgb(0 0 0 / .6) !important;}
+html.dark .bg-ink\/40{background-color: rgb(0 0 0 / .45) !important;}
+html.dark .bg-ink{background-color: #05080c !important;}
+</style>
+<link rel="stylesheet" href="{% static 'rs/app.css' %}">

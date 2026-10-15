@@ -1,0 +1,116 @@
+{% extends "manage/base.html" %}{% load rs %}
+{% block title %}การจอง{% endblock %}{% block heading %}รายการการจองตั๋ว{% endblock %}
+{% block content %}
+<form method="get" class="bg-surface rounded-xl border border-line shadow-sm p-space-md flex flex-col md:flex-row gap-space-sm">
+  <div class="relative flex-1"><span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate">search</span>
+    <input class="w-full h-11 pl-10 pr-3 rounded-lg bg-surface-container-low text-ink focus:bg-surface focus:outline-none border border-transparent focus:border-line" name="q" value="{{ q }}" placeholder="ค้นหาด้วยเลขจอง ชื่อผู้จอง/ผู้โดยสาร อีเมล หรือขบวน..."></div>
+  <select name="status" onchange="this.form.submit()" class="h-11 px-3 rounded-lg bg-surface-container-low text-ink border border-transparent focus:border-line">
+    <option value="">ทุกสถานะ</option>
+    <option value="pending" {% if status == 'pending' %}selected{% endif %}>รอยืนยัน ({{ counts.pending|default:0 }})</option>
+    <option value="confirmed" {% if status == 'confirmed' %}selected{% endif %}>ยืนยันแล้ว ({{ counts.confirmed|default:0 }})</option>
+    <option value="cancelled" {% if status == 'cancelled' %}selected{% endif %}>ยกเลิก ({{ counts.cancelled|default:0 }})</option>
+    <option value="expired" {% if status == 'expired' %}selected{% endif %}>หมดเวลา ({{ counts.expired|default:0 }})</option>
+  </select>
+  <button class="h-11 px-space-lg rounded-lg bg-primary-container text-on-primary font-label-md hover:bg-primary" type="submit">ค้นหา</button>
+</form>
+
+<div class="bg-surface rounded-xl border border-line shadow-sm overflow-x-auto">
+  <table class="w-full text-left whitespace-nowrap">
+    <thead class="bg-surface-container-low"><tr class="text-slate font-label-sm text-label-sm">
+      <th class="px-space-md py-3">เลขจอง</th><th class="px-space-md py-3">ผู้จอง</th><th class="px-space-md py-3">ขบวน / วันที่</th><th class="px-space-md py-3">ที่นั่ง</th><th class="px-space-md py-3">ยอด</th><th class="px-space-md py-3">สถานะ</th><th class="px-space-md py-3">สลิป</th><th class="px-space-md py-3 text-right">การจัดการ</th></tr></thead>
+    <tbody>
+    {% for b in bookings %}
+      <tr class="border-t border-line/70 hover:bg-surface-container-low/60">
+        <td class="px-space-md py-3 font-label-md text-primary">{{ b.code }}</td>
+        <td class="px-space-md py-3"><p class="text-ink">{{ b.user.get_full_name }}</p><p class="text-caption text-slate">{{ b.user.email }}</p></td>
+        <td class="px-space-md py-3"><p class="text-ink">{{ b.schedule.train.number }} {{ b.schedule.origin.name }}→{{ b.schedule.destination.name }}</p><p class="text-caption text-slate">{{ b.schedule.date|thdate }} {{ b.schedule.depart_time|hm }}</p></td>
+        <td class="px-space-md py-3 text-ink">{% for bs in b.shown_seats %}{{ bs.seat.carriage.number }}-{{ bs.seat.label }}{% if not forloop.last %}, {% endif %}{% endfor %}</td>
+        <td class="px-space-md py-3 text-ink">{{ b.total|baht }}</td>
+        <td class="px-space-md py-3"><span class="px-2.5 py-0.5 rounded-full text-label-sm font-label-sm {{ b.status|badge }}">{{ b.get_status_display }}</span></td>
+        <td class="px-space-md py-3">{% if b.slip %}<button type="button" class="text-secondary hover:underline font-label-md flex items-center gap-1" data-slip="{% url 'slip' b.id %}" data-name="{{ b.code }} · {{ b.user.get_full_name }} · {{ b.total|baht }}" data-pdf="{{ b.slip.name|lower|slice:'-4:' }}"><span class="material-symbols-outlined text-[18px]">receipt_long</span>ดูสลิป</button>{% else %}<span class="text-slate text-caption">-</span>{% endif %}</td>
+        <td class="px-space-md py-3"><div class="flex items-center justify-end gap-1">
+          {% if b.status == 'pending' %}
+          <form method="post" action="{% url 'manage_booking_status' b.id %}">{% csrf_token %}<input type="hidden" name="status" value="confirmed"><input type="hidden" name="next" value="{{ request.get_full_path }}">
+            <button class="h-9 px-3 rounded-lg bg-success text-white font-label-sm text-label-sm flex items-center gap-1 hover:opacity-90" type="submit"><span class="material-symbols-outlined text-[16px]">check</span>ยืนยัน</button></form>
+          {% endif %}
+          {% if b.is_active %}
+          <form method="post" action="{% url 'manage_booking_status' b.id %}">{% csrf_token %}<input type="hidden" name="status" value="cancelled"><input type="hidden" name="next" value="{{ request.get_full_path }}">
+            <button class="h-9 px-3 rounded-lg border border-danger/40 text-danger font-label-sm text-label-sm flex items-center gap-1 hover:bg-danger/10" type="submit" data-confirm="ยกเลิกการจอง {{ b.code }} และคืนที่นั่งใช่ไหม?"><span class="material-symbols-outlined text-[16px]">close</span>ยกเลิก</button></form>
+          {% endif %}
+          <a class="h-9 px-3 rounded-lg border border-line text-ink font-label-sm text-label-sm flex items-center gap-1 hover:bg-mist" href="?{% if q %}q={{ q|urlencode }}&{% endif %}{% if status %}status={{ status }}&{% endif %}edit={{ b.id }}"><span class="material-symbols-outlined text-[16px]">edit</span>แก้ไข</a>
+        </div></td>
+      </tr>
+    {% empty %}<tr><td colspan="8" class="px-space-md py-10 text-center text-slate">ไม่พบการจองตามเงื่อนไข</td></tr>{% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<!-- slip modal -->
+<div id="slip-modal" class="hidden fixed inset-0 z-[80] bg-ink/60 items-center justify-center p-space-md" onclick="if(event.target===this)closeSlip()">
+  <div class="bg-surface rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] flex flex-col overflow-hidden">
+    <div class="px-space-lg py-space-md border-b border-line flex items-center justify-between"><div><p class="font-headline-sm text-headline-sm text-ink">หลักฐานการชำระเงิน</p><p class="text-caption text-slate" id="slip-title"></p></div>
+      <button type="button" class="w-9 h-9 rounded-full hover:bg-mist flex items-center justify-center" onclick="closeSlip()"><span class="material-symbols-outlined">close</span></button></div>
+    <div class="p-space-md overflow-auto bg-surface-container-low flex justify-center" id="slip-body"></div>
+    <div class="px-space-lg py-space-md border-t border-line flex justify-between gap-2">
+      <a id="slip-open" target="_blank" class="h-10 px-space-md rounded-lg border border-line text-ink font-label-md flex items-center gap-1 hover:bg-mist"><span class="material-symbols-outlined text-[18px]">fullscreen</span>เปิดขนาดเต็ม</a>
+      <button type="button" class="h-10 px-space-md rounded-lg bg-primary-container text-on-primary font-label-md" onclick="closeSlip()">ปิดหน้าต่าง</button></div>
+  </div>
+</div>
+
+{% if edit %}
+<!-- edit modal -->
+<div class="fixed inset-0 z-[80] bg-ink/60 flex items-center justify-center p-space-md">
+  <form method="post" action="{% url 'manage_booking_edit' edit.id %}" class="bg-surface rounded-2xl shadow-2xl w-full max-w-2xl max-h-[92vh] flex flex-col overflow-hidden">{% csrf_token %}
+    <input type="hidden" name="next" value="{% url 'manage_bookings' %}{% if q or status %}?{% endif %}{% if q %}q={{ q|urlencode }}{% endif %}{% if q and status %}&{% endif %}{% if status %}status={{ status }}{% endif %}">
+    <div class="px-space-lg py-space-md border-b border-line flex items-center justify-between">
+      <div><p class="font-headline-sm text-headline-sm text-ink">แก้ไขข้อมูลการจอง {{ edit.code }}</p><p class="text-caption text-slate">{{ edit.user.get_full_name }} · {{ edit.schedule.train.number }} {{ edit.schedule.origin.name }}→{{ edit.schedule.destination.name }} · {{ edit.schedule.date|thdate }}</p></div>
+      <a class="w-9 h-9 rounded-full hover:bg-mist flex items-center justify-center" href="{% url 'manage_bookings' %}"><span class="material-symbols-outlined">close</span></a>
+    </div>
+    <div class="p-space-lg overflow-y-auto flex flex-col gap-space-md">
+      {% for bs in edit.seat_rows %}
+      <div class="p-space-md rounded-xl bg-surface-container-low border border-line flex flex-col gap-space-sm">
+        <p class="font-label-md text-ink">ผู้โดยสาร {{ forloop.counter }} · ปัจจุบัน ตู้ {{ bs.seat.carriage.number }} ที่นั่ง {{ bs.seat.label }}</p>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-space-sm">
+          <label class="flex flex-col gap-1"><span class="text-caption text-slate">ชื่อผู้โดยสาร</span><input class="h-10 px-3 rounded-lg bg-surface text-ink border border-line" name="name_{{ bs.id }}" value="{{ bs.passenger_name }}"></label>
+          <label class="flex flex-col gap-1"><span class="text-caption text-slate">เบอร์โทร</span><input class="h-10 px-3 rounded-lg bg-surface text-ink border border-line" name="phone_{{ bs.id }}" value="{{ bs.phone }}"></label>
+          <label class="flex flex-col gap-1"><span class="text-caption text-slate">ย้ายที่นั่ง (เฉพาะที่ว่าง)</span>
+            <select class="h-10 px-2 rounded-lg bg-surface text-ink border border-line" name="seat_{{ bs.id }}">
+              {% for s in edit.free_seats %}<option value="{{ s.id }}" {% if s.id == bs.seat_id %}selected{% endif %}>ตู้ {{ s.carriage.number }} · {{ s.label }} ({{ s.carriage.car_type.name }} {{ s.price|baht }})</option>{% endfor %}
+            </select></label>
+        </div>
+      </div>
+      {% endfor %}
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-space-md">
+        <label class="flex flex-col gap-1"><span class="font-label-md text-ink">สถานะการจอง</span>
+          <select name="status" class="h-11 px-3 rounded-lg bg-surface-container-low text-ink border border-line">
+            {% for v, l in edit.STATUSES %}{% if v != 'held' %}<option value="{{ v }}" {% if v == edit.status %}selected{% endif %}>{{ l }}</option>{% endif %}{% endfor %}
+          </select></label>
+        <div class="flex flex-col gap-1"><span class="font-label-md text-ink">สลิป</span>
+          {% if edit.slip %}<button type="button" class="h-11 px-3 rounded-lg border border-line text-secondary font-label-md flex items-center gap-1 hover:bg-mist" data-slip="{% url 'slip' edit.id %}" data-name="{{ edit.code }}" data-pdf="{{ edit.slip.name|lower|slice:'-4:' }}"><span class="material-symbols-outlined text-[18px]">receipt_long</span>ดูสลิป ({{ edit.slip_uploaded_at|thdatetime }})</button>{% else %}<span class="h-11 flex items-center text-slate">ยังไม่มีสลิป</span>{% endif %}</div>
+      </div>
+      <label class="flex flex-col gap-1"><span class="font-label-md text-ink">บันทึกของแอดมิน</span>
+        <textarea name="admin_note" class="min-h-[90px] p-3 rounded-lg bg-surface-container-low text-ink border border-line" placeholder="เช่น ลูกค้าขอเปลี่ยนที่นั่งติดหน้าต่าง">{{ edit.admin_note }}</textarea></label>
+    </div>
+    <div class="px-space-lg py-space-md border-t border-line flex justify-end gap-2">
+      <a class="h-11 px-space-lg rounded-lg border border-line text-ink font-label-md flex items-center hover:bg-mist" href="{% url 'manage_bookings' %}">ยกเลิก</a>
+      <button class="h-11 px-space-lg rounded-lg bg-primary-container hover:bg-primary text-on-primary font-label-md flex items-center gap-1" type="submit"><span class="material-symbols-outlined text-[18px]">save</span>บันทึกการแก้ไข</button>
+    </div>
+  </form>
+</div>
+{% endif %}
+{% endblock %}
+{% block scripts %}
+<script>
+function closeSlip(){ const m=document.getElementById('slip-modal'); m.classList.add('hidden'); m.classList.remove('flex'); }
+document.querySelectorAll('[data-slip]').forEach(b => b.addEventListener('click', () => {
+  const m = document.getElementById('slip-modal'), body = document.getElementById('slip-body');
+  document.getElementById('slip-title').textContent = b.dataset.name;
+  document.getElementById('slip-open').href = b.dataset.slip;
+  body.innerHTML = b.dataset.pdf === '.pdf'
+    ? `<iframe src="${b.dataset.slip}" class="w-full h-[60vh] rounded-lg bg-white"></iframe>`
+    : `<img src="${b.dataset.slip}" alt="สลิป" class="max-h-[60vh] rounded-lg shadow">`;
+  m.classList.remove('hidden'); m.classList.add('flex');
+}));
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeSlip(); });
+</script>
+{% endblock %}
